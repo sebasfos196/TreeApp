@@ -6,49 +6,56 @@ from datetime import datetime
 import os
 
 def setup_editor_panel(app):
-    # Header del editor CORREGIDO
+    """
+    Panel de edición avanzado unificado:
+    - Campo de nombre
+    - Campo markdown (3 líneas, editable, sincroniza en tiempo real)
+    - Notas técnicas (con scrollbar)
+    - Editor de código con números de línea y minimap visual
+    - PanedWindow vertical para redimensionar áreas
+    - Soporte para context menu y funciones legacy
+    """
+    # Header del editor
     editor_header = ttk.Frame(app.center_frame)
     editor_header.pack(fill="x", padx=5, pady=5)
     ttk.Label(editor_header, text="📝 EDITOR", font=("Segoe UI", 10, "bold")).pack(side="left")
-    # SIN botón exportar - ya está en vista previa
 
     # Campo nombre
     name_frame = ttk.Frame(app.center_frame)
     name_frame.pack(fill="x", padx=5, pady=2)
-
     ttk.Label(name_frame, text="Nombre:").pack(side="left")
     app.name_entry = ttk.Entry(name_frame, font=("Segoe UI", 10))
     app.name_entry.pack(side="left", fill="x", expand=True, padx=5)
     app.name_entry.bind("<KeyRelease>", app.update_name)
 
-    # Contenedor principal REDIMENSIONABLE
+    # Contenedor principal redimensionable
     main_paned = ttk.PanedWindow(app.center_frame, orient="vertical")
     main_paned.pack(fill="both", expand=True, padx=5, pady=5)
 
-    # EDITOR 1: Markdown - TÍTULOS CORREGIDOS
+    # --- EDITOR 1: Markdown ---
     markdown_frame = ttk.LabelFrame(main_paned, text="📝 Markdown")
-    main_paned.add(markdown_frame, weight=1)  # Redimensionable
-    
-    app.markdown_short = tk.Text(markdown_frame, height=3, wrap="word",
-                                font=("Segoe UI", 10),
-                                bg="#ffffff", fg="#333333",
-                                relief="flat", borderwidth=1)
+    main_paned.add(markdown_frame, weight=1)
+    app.markdown_short = tk.Text(
+        markdown_frame, height=3, wrap="word",
+        font=("Segoe UI", 10),
+        bg="#ffffff", fg="#333333",
+        relief="flat", borderwidth=1
+    )
     app.markdown_short.pack(fill="both", expand=True, padx=5, pady=5)
     app.markdown_short.bind("<KeyRelease>", lambda e: update_markdown_short(app))
     setup_text_context_menu(app, app.markdown_short)
 
-    # EDITOR 2: Notas Técnicas - TÍTULO CORREGIDO
+    # --- EDITOR 2: Notas Técnicas ---
     notes_frame = ttk.LabelFrame(main_paned, text="📄 Notas Técnicas")
-    main_paned.add(notes_frame, weight=2)  # Redimensionable
-    
+    main_paned.add(notes_frame, weight=2)
     notes_container = tk.Frame(notes_frame)
     notes_container.pack(fill="both", expand=True, padx=5, pady=5)
-    
-    app.explanation_text = tk.Text(notes_container, wrap="word",
-                                  font=("Segoe UI", 10),
-                                  bg="#ffffff", fg="#333333")
+    app.explanation_text = tk.Text(
+        notes_container, wrap="word",
+        font=("Segoe UI", 10),
+        bg="#ffffff", fg="#333333"
+    )
     app.explanation_text.pack(side="left", fill="both", expand=True)
-    
     notes_scrollbar = ttk.Scrollbar(notes_container, orient="vertical",
                                    command=app.explanation_text.yview)
     notes_scrollbar.pack(side="right", fill="y")
@@ -56,43 +63,52 @@ def setup_editor_panel(app):
     app.explanation_text.bind("<KeyRelease>", lambda e: update_explanation_text(app))
     setup_text_context_menu(app, app.explanation_text)
 
-    # EDITOR 3: Código - TÍTULO Y COLOR CORREGIDOS
+    # --- EDITOR 3: Código con números de línea y minimap ---
     code_frame = ttk.LabelFrame(main_paned, text="💻 Código")
-    main_paned.add(code_frame, weight=2)  # Redimensionable
-
+    main_paned.add(code_frame, weight=2)
     code_container = tk.Frame(code_frame)
     code_container.pack(fill="both", expand=True, padx=5, pady=5)
 
-    # Números de línea para código
-    app.code_line_numbers = tk.Text(code_container, width=4, padx=3, pady=5,
-                                   takefocus=0, border=0, state='disabled', wrap='none',
-                                   font=("Consolas", app.config["font_size"]),
-                                   bg="#f8f8f8", fg="#888888")
+    # Números de línea
+    app.code_line_numbers = tk.Text(
+        code_container, width=4, padx=3, pady=5,
+        takefocus=0, border=0, state='disabled', wrap='none',
+        font=("Consolas", app.config.get("font_size", 10)),
+        bg="#f8f8f8", fg="#888888"
+    )
     app.code_line_numbers.pack(side="left", fill="y")
 
-    # Editor de código BLANCO como otros editores
-    app.code_text = tk.Text(code_container, wrap="none",
-                           font=("Consolas", app.config["font_size"]),
-                           bg="#ffffff", fg="#333333",  # BLANCO como otros
-                           insertbackground="black",    # Cursor negro
-                           selectbackground="#264f78",
-                           selectforeground="white",
-                           relief="flat", borderwidth=1)
+    # Editor de código principal
+    app.code_text = tk.Text(
+        code_container, wrap="none",
+        font=("Consolas", app.config.get("font_size", 10)),
+        bg="#ffffff", fg="#333333",
+        insertbackground="black",
+        selectbackground="#264f78",
+        selectforeground="white",
+        relief="flat", borderwidth=1
+    )
     app.code_text.pack(side="left", fill="both", expand=True)
+
+    # Minimap a la derecha
+    app.code_minimap = tk.Canvas(
+        code_container, width=60, height=180, bg="#f4f4f4",
+        highlightthickness=1, relief="ridge"
+    )
+    app.code_minimap.pack(side="left", fill="y", pady=(20, 0))
 
     # Scrollbars para código
     code_scrollbar_v = ttk.Scrollbar(code_container, orient="vertical",
-                                   command=lambda *args: sync_scroll(app, *args))
+                                     command=lambda *args: sync_scroll(app, *args))
     code_scrollbar_v.pack(side="right", fill="y")
-    
     code_scrollbar_h = ttk.Scrollbar(code_frame, orient="horizontal",
-                                   command=app.code_text.xview)
+                                     command=app.code_text.xview)
     code_scrollbar_h.pack(side="bottom", fill="x")
-    
-    # Configurar scrollbars
-    app.code_text.config(yscrollcommand=lambda *args: scrollbar_set_with_lines(app, code_scrollbar_v, *args),
-                        xscrollcommand=code_scrollbar_h.set)
-    
+    app.code_text.config(
+        yscrollcommand=lambda *args: scrollbar_set_with_lines(app, code_scrollbar_v, *args),
+        xscrollcommand=code_scrollbar_h.set
+    )
+
     # Eventos para código
     app.code_text.bind("<KeyRelease>", lambda e: update_code_text_with_lines(app, e))
     app.code_text.bind("<Button-1>", lambda e: update_code_line_numbers(app))
@@ -102,11 +118,14 @@ def setup_editor_panel(app):
     # Función para actualizar números de línea accesible desde app
     app.update_code_line_numbers = lambda: update_code_line_numbers(app)
     
-    # COMPATIBILIDAD: Asegurar que text apunte a code_text para funciones legacy
+    # COMPATIBILIDAD: Asegurar que text apunte a code_text
     app.text = app.code_text
     
-    # Inicializar números de línea
+    # Inicializar
     update_code_line_numbers(app)
+    update_minimap(app)
+
+# --- FUNCIONES AUXILIARES ---
 
 def setup_text_context_menu(app, text_widget):
     """Configurar menú contextual para cualquier widget de texto"""
@@ -149,41 +168,6 @@ def safe_redo(text_widget):
     except tk.TclError:
         pass
 
-def sync_scroll(app, *args):
-    """Sincronizar scroll entre código y números de línea"""
-    app.code_text.yview(*args)
-    app.code_line_numbers.yview(*args)
-
-def scrollbar_set_with_lines(app, scrollbar, *args):
-    """Configurar scrollbar y sincronizar líneas"""
-    scrollbar.set(*args)
-    app.code_line_numbers.yview_moveto(args[0])
-
-def update_code_line_numbers(app):
-    """Actualizar números de línea del editor de código"""
-    if not hasattr(app, 'code_line_numbers') or not hasattr(app, 'code_text'):
-        return
-        
-    app.code_line_numbers.config(state='normal')
-    app.code_line_numbers.delete("1.0", "end")
-    
-    # Contar líneas en el editor de código
-    line_count = int(app.code_text.index('end').split('.')[0]) - 1
-    line_numbers = "\n".join(str(i) for i in range(1, max(line_count + 1, 2)))
-    
-    app.code_line_numbers.insert("1.0", line_numbers)
-    app.code_line_numbers.config(state='disabled')
-
-def on_code_mousewheel(app, event):
-    """Manejar scroll del mouse en editor de código"""
-    app.code_line_numbers.yview_scroll(int(-1*(event.delta/120)), "units")
-    return "break"
-
-def update_code_text_with_lines(app, event):
-    """Actualizar código y números de línea"""
-    update_code_text(app, event)
-    app.root.after_idle(lambda: update_code_line_numbers(app))
-
 def update_markdown_short(app):
     """Actualizar markdown resumido"""
     if (app.current_node and app.current_node in app.node_data and 
@@ -196,6 +180,10 @@ def update_markdown_short(app):
         # Actualizar vista previa inmediatamente
         if hasattr(app, 'update_preview'):
             app.root.after(100, app.update_preview)
+        
+        # Actualizar display del árbol en tiempo real
+        if hasattr(app, 'update_tree_display_realtime'):
+            app.update_tree_display_realtime(app.current_node)
 
 def update_explanation_text(app):
     """Actualizar explicación extendida"""
@@ -214,6 +202,74 @@ def update_code_text(app, event=None):
         app.node_data[app.current_node]["code"] = content
         app.node_data[app.current_node]["modified"] = datetime.now().isoformat()
         app.mark_unsaved()
+
+def sync_scroll(app, *args):
+    """Sincronizar scroll entre código y números de línea"""
+    app.code_text.yview(*args)
+    app.code_line_numbers.yview(*args)
+
+def scrollbar_set_with_lines(app, scrollbar, first, last):
+    """Configurar scrollbar y sincronizar líneas"""
+    scrollbar.set(first, last)
+    app.code_line_numbers.yview_moveto(first)
+
+def update_code_line_numbers(app):
+    """Actualizar números de línea del editor de código"""
+    if not hasattr(app, 'code_line_numbers') or not hasattr(app, 'code_text'):
+        return
+        
+    try:
+        app.code_line_numbers.config(state='normal')
+        app.code_line_numbers.delete("1.0", "end")
+        
+        # Contar líneas en el editor de código
+        line_count = int(app.code_text.index('end').split('.')[0]) - 1
+        line_numbers = "\n".join(str(i) for i in range(1, max(line_count + 1, 2)))
+        
+        app.code_line_numbers.insert("1.0", line_numbers)
+        app.code_line_numbers.config(state='disabled')
+    except Exception:
+        pass
+
+def on_code_mousewheel(app, event):
+    """Manejar scroll del mouse en editor de código"""
+    try:
+        app.code_line_numbers.yview_scroll(int(-1*(event.delta/120)), "units")
+        return "break"
+    except Exception:
+        pass
+
+def update_code_text_with_lines(app, event):
+    """Actualizar código y números de línea"""
+    update_code_text(app, event)
+    update_minimap(app)
+    app.root.after_idle(lambda: update_code_line_numbers(app))
+
+def update_minimap(app):
+    """Actualizar minimap visual del código"""
+    if not hasattr(app, 'code_minimap') or not hasattr(app, 'code_text'):
+        return
+        
+    try:
+        code = app.code_text.get("1.0", "end-1c")
+        lines = code.splitlines()
+        canvas = app.code_minimap
+        canvas.delete("all")
+        
+        h = int(canvas['height'])
+        w = int(canvas['width'])
+        n = max(1, len(lines))
+        line_h = h / n
+        
+        for i, line in enumerate(lines):
+            y0 = i * line_h
+            y1 = (i + 1) * line_h
+            length = min(len(line) / 70, 1.0)  # Escala el largo de la línea
+            x1 = 8 + int(length * (w - 20))
+            color = "#bbb" if i % 2 == 0 else "#999"
+            canvas.create_rectangle(8, y0, x1, y1, fill=color, outline="")
+    except Exception:
+        pass
 
 def export_professional_docs(app):
     """Exportar documentación profesional en múltiples formatos"""
