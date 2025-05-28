@@ -1,0 +1,9 @@
+git status
+git branch 
+git checkout nombre-de-la-rama
+git remote add origin https://github.com/sebasfos196/TreeApp
+
+
+git add .
+git commit -m "v1"
+git push origin nombre rama
