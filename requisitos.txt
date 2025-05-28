@@ -55,6 +55,65 @@ Este documento detalla las capacidades esenciales y los criterios UX que debe cu
 - [ ] Acceso a Undo/Redo desde menú contextual y barra de herramientas.
 **Este checklist debe cumplirse siempre.  
 No merges cambios que degraden alguna funcionalidad de esta lista.**
+
+
+✅ Requisitos Funcionales – Gestión Avanzada de Árboles
+1. 🌳 Múltiples Árboles Simultáneos
+El explorador debe permitir tener varios árboles/proyectos abiertos al mismo tiempo.
+Cada árbol es una instancia independiente con su propio nodo raíz.
+Visualmente, se deben mostrar como bloques separados o secciones en el panel izquierdo.
+Cada árbol puede ser:
+Creado manualmente (Nuevo árbol)
+Importado desde texto
+Resultado de una operación de duplicación/desacoplamiento
+
+2. 🖱️ Menú contextual para gestión de árboles
+Disponible al hacer clic derecho sobre:
+El espacio vacío del explorador
+La cabecera de un árbol
+Un nodo raíz
+
+Opciones sugeridas:
+➕ Nuevo árbol / proyecto
+🗂 Cerrar árbol
+✂️ Separar rama como árbol nuevo (solo en nodos no raíz)
+🔁 Fusionar con otro árbol (si hay más de uno)
+💾 Guardar todos los árboles
+
+3. 📥 Importación desde la ventana de código
+El contenido se pega o escribe directamente en el editor de texto.
+El sistema detecta automáticamente si es:
+Un árbol ASCII (tree)
+Una lista indentada
+Una lista de rutas
+Acciones disponibles (post pegado):
+Agregar como rama al nodo seleccionado
+Crear nuevo árbol con esta estructura
+Previsualizar la estructura antes de insertar
+
+4. 🔀 Drag & Drop entre árboles
+Se puede:
+Mover una rama completa de un árbol a otro
+Fusionar árboles arrastrando un nodo raíz dentro de otro árbol
+Reordenar visualmente los árboles o sus ramas
+El sistema debe validar jerarquías y evitar ciclos
+
+5. 🔓 Desacoplar rama del árbol
+Clic derecho sobre un nodo permite:
+Separar esta rama
+La rama pasa a ser un nuevo árbol independiente
+El nuevo árbol aparece como una nueva sección en el explorador
+
+6. 🧩 Operaciones avanzadas
+Unir árboles: fusiona un árbol arrastrado dentro de otro
+Deshacer última importación si fue incorrecta
+Reasignar nodo raíz: permitir cambiar la raíz de un árbol
+
+
+
+
+
+
 # 🌳 Agregar múltiples objetos al árbol desde la ventana de código
 Este documento define los requerimientos completos para la funcionalidad de agregar ramas/carpetas y archivos al árbol de proyectos **desde la ventana de código** en TreeApp v4 Pro.
 ## 🎯 Objetivo
@@ -653,6 +712,8 @@ treeapp_v4_pro/
         ├── ejemplo_ascii_folders.txt
         ├── ejemplo_columnas.txt
         └── ejemplo_profesional.txt
+
+
 ### Notas adicionales:
 - Integración total entre paneles UI y lógica (EventBus, StateManager).
 - Los 4 campos del editor (nombre, markdown, notas técnicas, código) con controles avanzados y validación, incluidos en modelos y UI.
@@ -663,6 +724,4 @@ treeapp_v4_pro/
 **Este árbol es la base ideal para un TreeApp v4 Pro profesional, flexible y escalable.**
 
 
-
-
-es posible agregar la funcionalidad de selecionar una rama o un archivo o un grupo y duplicarla, o hacer copy paste dentro de otras ramas ?
+cuando los archivos superen las 450 lineas de codigo son una señal para remanufacturar dividiendo responsabilidades
