@@ -1,0 +1,1699 @@
+treeapp_v4_pro/
+├── main.py                           # Bootstrap (10 líneas)
+├── app/
+│   ├── application.py                # App principal (50 líneas)
+│   ├── bootstrap/
+│   │   ├── container.py              # DI container (60 líneas)
+│   │   ├── event_wiring.py           # Conexión eventos (40 líneas)
+│   │   ├── service_registration.py   # Registro servicios (80 líneas)
+│   │   └── startup_sequence.py       # Secuencia inicio (30 líneas)
+│   ├── lifecycle/
+│   │   ├── startup_manager.py        # Inicio (50 líneas)
+│   │   ├── shutdown_manager.py       # Cierre (40 líneas)
+│   │   ├── error_handler.py          # Errores globales (70 líneas)
+│   │   └── recovery_manager.py       # Recuperación (60 líneas)
+│   └── configuration/
+│       ├── app_config.py             # Config app (40 líneas)
+│       ├── feature_flags.py          # Flags (30 líneas)
+│       └── environment.py            # Entorno (25 líneas)
+├── domain/                           # DOMAIN LAYER
+│   ├── shared/                       # Shared kernel
+│   │   ├── value_objects/
+│   │   │   ├── id.py                 # ID base (20 líneas)
+│   │   │   ├── name.py               # Nombre base (30 líneas)
+│   │   │   ├── timestamp.py          # Timestamp (25 líneas)
+│   │   │   ├── version.py            # Versión (20 líneas)
+│   │   │   └── path.py               # Ruta (40 líneas)
+│   │   ├── entities/
+│   │   │   ├── base_entity.py        # Entidad base (30 líneas)
+│   │   │   └── aggregate_root.py     # Raíz agregado (40 líneas)
+│   │   ├── events/
+│   │   │   ├── domain_event.py       # Evento base (25 líneas)
+│   │   │   ├── event_store.py        # Almacén eventos (60 líneas)
+│   │   │   └── event_publisher.py    # Publicador (40 líneas)
+│   │   └── exceptions/
+│   │       ├── domain_exception.py   # Excepción base (20 líneas)
+│   │       ├── validation_error.py   # Error validación (25 líneas)
+│   │       └── business_rule_error.py # Error regla (30 líneas)
+│   ├── node/                         # AGREGADO NODE
+│   │   ├── entities/
+│   │   │   ├── node.py               # Entidad Node (80 líneas)
+│   │   │   ├── node_content.py       # Contenido (60 líneas)
+│   │   │   ├── node_metadata.py      # Metadatos (50 líneas)
+│   │   │   └── node_version.py       # Versionado (40 líneas)
+│   │   ├── value_objects/
+│   │   │   ├── node_id.py            # ID único (25 líneas)
+│   │   │   ├── node_name.py          # Nombre + validación (40 líneas)
+│   │   │   ├── node_type.py          # Tipo (file/folder) (30 líneas)
+│   │   │   ├── node_status.py        # Estado (✅❌⬜) (35 líneas)
+│   │   │   ├── markdown_content.py   # Contenido MD (50 líneas)
+│   │   │   ├── technical_notes.py    # Notas técnicas (45 líneas)
+│   │   │   ├── code_content.py       # Contenido código (55 líneas)
+│   │   │   ├── creation_info.py      # Info creación (30 líneas)
+│   │   │   ├── modification_info.py  # Info modificación (35 líneas)
+│   │   │   └── node_tags.py          # Tags/etiquetas (40 líneas)
+│   │   ├── services/
+│   │   │   ├── node_validator.py     # Validaciones (70 líneas)
+│   │   │   ├── node_factory.py       # Factory (50 líneas)
+│   │   │   ├── node_cloner.py        # Clonación (60 líneas)
+│   │   │   └── content_processor.py  # Procesador contenido (80 líneas)
+│   │   ├── specifications/
+│   │   │   ├── valid_node_name_spec.py      # Spec nombre (40 líneas)
+│   │   │   ├── unique_node_spec.py          # Spec único (35 líneas)
+│   │   │   ├── node_hierarchy_spec.py       # Spec jerarquía (50 líneas)
+│   │   │   └── content_format_spec.py       # Spec formato (45 líneas)
+│   │   ├── events/
+│   │   │   ├── node_created.py       # Evento creado (25 líneas)
+│   │   │   ├── node_updated.py       # Evento actualizado (30 líneas)
+│   │   │   ├── node_deleted.py       # Evento eliminado (25 líneas)
+│   │   │   ├── node_moved.py         # Evento movido (35 líneas)
+│   │   │   ├── node_renamed.py       # Evento renombrado (30 líneas)
+│   │   │   ├── content_changed.py    # Contenido cambiado (35 líneas)
+│   │   │   └── status_changed.py     # Estado cambiado (30 líneas)
+│   │   └── repositories/
+│   │       ├── node_repository.py    # Interfaz repo (30 líneas)
+│   │       └── node_query_repository.py # Consultas (40 líneas)
+│   ├── tree/                         # AGREGADO TREE
+│   │   ├── entities/
+│   │   │   ├── tree.py               # Entidad Tree (90 líneas)
+│   │   │   ├── tree_node.py          # Nodo en árbol (70 líneas)
+│   │   │   ├── tree_branch.py        # Rama (60 líneas)
+│   │   │   └── tree_root.py          # Raíz (50 líneas)
+│   │   ├── value_objects/
+│   │   │   ├── tree_id.py            # ID árbol (25 líneas)
+│   │   │   ├── tree_path.py          # Ruta en árbol (50 líneas)
+│   │   │   ├── tree_depth.py         # Profundidad (30 líneas)
+│   │   │   ├── node_position.py      # Posición nodo (35 líneas)
+│   │   │   ├── hierarchy_level.py    # Nivel jerarquía (25 líneas)
+│   │   │   └── tree_structure.py     # Estructura (60 líneas)
+│   │   ├── services/
+│   │   │   ├── tree_builder.py       # Constructor (80 líneas)
+│   │   │   ├── tree_validator.py     # Validador (90 líneas)
+│   │   │   ├── tree_walker.py        # Recorredor (70 líneas)
+│   │   │   ├── hierarchy_manager.py  # Gestor jerarquía (85 líneas)
+│   │   │   ├── tree_analyzer.py      # Analizador (75 líneas)
+│   │   │   └── tree_repairer.py      # Reparador (80 líneas)
+│   │   ├── algorithms/
+│   │   │   ├── depth_first_traversal.py  # DFS (50 líneas)
+│   │   │   ├── breadth_first_traversal.py # BFS (50 líneas)
+│   │   │   ├── tree_balancer.py          # Balanceador (70 líneas)
+│   │   │   ├── path_finder.py            # Buscador rutas (60 líneas)
+│   │   │   └── subtree_extractor.py      # Extractor subramas (55 líneas)
+│   │   ├── specifications/
+│   │   │   ├── valid_tree_spec.py        # Spec árbol válido (60 líneas)
+│   │   │   ├── acyclic_tree_spec.py      # Spec sin ciclos (50 líneas)
+│   │   │   ├── balanced_tree_spec.py     # Spec balanceado (45 líneas)
+│   │   │   └── max_depth_spec.py         # Spec profundidad (35 líneas)
+│   │   ├── events/
+│   │   │   ├── tree_created.py       # Árbol creado (25 líneas)
+│   │   │   ├── tree_modified.py      # Árbol modificado (30 líneas)
+│   │   │   ├── branch_added.py       # Rama agregada (30 líneas)
+│   │   │   ├── branch_removed.py     # Rama eliminada (30 líneas)
+│   │   │   ├── structure_changed.py  # Estructura cambiada (35 líneas)
+│   │   │   └── hierarchy_rebuilt.py  # Jerarquía reconstruida (30 líneas)
+│   │   └── repositories/
+│   │       ├── tree_repository.py    # Interfaz repo (35 líneas)
+│   │       └── tree_query_repository.py # Consultas (45 líneas)
+│   ├── project/                      # AGREGADO PROJECT
+│   │   ├── entities/
+│   │   │   ├── project.py            # Entidad Project (70 líneas)
+│   │   │   ├── project_settings.py   # Configuración (60 líneas)
+│   │   │   ├── project_metadata.py   # Metadatos (50 líneas)
+│   │   │   └── project_history.py    # Historial (55 líneas)
+│   │   ├── value_objects/
+│   │   │   ├── project_id.py         # ID proyecto (25 líneas)
+│   │   │   ├── project_name.py       # Nombre proyecto (35 líneas)
+│   │   │   ├── project_version.py    # Versión (30 líneas)
+│   │   │   ├── project_info.py       # Info general (40 líneas)
+│   │   │   ├── author_info.py        # Info autor (35 líneas)
+│   │   │   └── creation_date.py      # Fecha creación (25 líneas)
+│   │   ├── services/
+│   │   │   ├── project_factory.py    # Factory (60 líneas)
+│   │   │   ├── project_validator.py  # Validador (55 líneas)
+│   │   │   ├── project_migrator.py   # Migrador versiones (80 líneas)
+│   │   │   └── project_archiver.py   # Archivador (70 líneas)
+│   │   ├── events/
+│   │   │   ├── project_created.py    # Proyecto creado (25 líneas)
+│   │   │   ├── project_loaded.py     # Proyecto cargado (30 líneas)
+│   │   │   ├── project_saved.py      # Proyecto guardado (30 líneas)
+│   │   │   ├── project_closed.py     # Proyecto cerrado (25 líneas)
+│   │   │   └── settings_changed.py   # Config cambiada (30 líneas)
+│   │   └── repositories/
+│   │       ├── project_repository.py # Interfaz repo (30 líneas)
+│   │       └── project_query_repository.py # Consultas (40 líneas)
+│   ├── collaboration/                # AGREGADO COLLABORATION (futuro)
+│   │   ├── entities/
+│   │   │   ├── user.py               # Usuario (50 líneas)
+│   │   │   ├── team.py               # Equipo (60 líneas)
+│   │   │   ├── comment.py            # Comentario (45 líneas)
+│   │   │   └── review.py             # Revisión (55 líneas)
+│   │   ├── value_objects/
+│   │   │   ├── user_id.py            # ID usuario (25 líneas)
+│   │   │   ├── permission.py         # Permiso (35 líneas)
+│   │   │   └── activity_log.py       # Log actividad (40 líneas)
+│   │   └── events/
+│   │       ├── user_joined.py        # Usuario se unió (25 líneas)
+│   │       ├── comment_added.py      # Comentario agregado (30 líneas)
+│   │       └── review_completed.py   # Revisión completada (30 líneas)
+│   └── search/                       # AGREGADO SEARCH
+│       ├── entities/
+│       │   ├── search_index.py       # Índice búsqueda (70 líneas)
+│       │   └── search_result.py      # Resultado (40 líneas)
+│       ├── value_objects/
+│       │   ├── search_query.py       # Consulta (35 líneas)
+│       │   ├── search_filter.py      # Filtro (40 líneas)
+│       │   └── relevance_score.py    # Puntuación (30 líneas)
+│       └── services/
+│           ├── indexer.py            # Indexador (80 líneas)
+│           ├── searcher.py           # Buscador (70 líneas)
+│           └── result_ranker.py      # Clasificador (60 líneas)
+├── application/                      # APPLICATION LAYER
+│   ├── commands/                     # COMANDOS (CQRS)
+│   │   ├── shared/
+│   │   │   ├── command.py            # Comando base (20 líneas)
+│   │   │   ├── command_handler.py    # Handler base (30 líneas)
+│   │   │   ├── command_bus.py        # Bus comandos (60 líneas)
+│   │   │   └── command_validator.py  # Validador (40 líneas)
+│   │   ├── nodes/
+│   │   │   ├── create_node_command.py        # Crear nodo (40 líneas)
+│   │   │   ├── create_node_handler.py        # Handler crear (50 líneas)
+│   │   │   ├── update_node_command.py        # Actualizar nodo (45 líneas)
+│   │   │   ├── update_node_handler.py        # Handler actualizar (55 líneas)
+│   │   │   ├── delete_node_command.py        # Eliminar nodo (35 líneas)
+│   │   │   ├── delete_node_handler.py        # Handler eliminar (50 líneas)
+│   │   │   ├── move_node_command.py          # Mover nodo (40 líneas)
+│   │   │   ├── move_node_handler.py          # Handler mover (60 líneas)
+│   │   │   ├── rename_node_command.py        # Renombrar nodo (35 líneas)
+│   │   │   ├── rename_node_handler.py        # Handler renombrar (45 líneas)
+│   │   │   ├── clone_node_command.py         # Clonar nodo (40 líneas)
+│   │   │   ├── clone_node_handler.py         # Handler clonar (55 líneas)
+│   │   │   ├── change_status_command.py      # Cambiar estado (30 líneas)
+│   │   │   ├── change_status_handler.py      # Handler estado (40 líneas)
+│   │   │   ├── update_content_command.py     # Actualizar contenido (45 líneas)
+│   │   │   ├── update_content_handler.py     # Handler contenido (55 líneas)
+│   │   │   ├── add_tag_command.py            # Agregar tag (30 líneas)
+│   │   │   ├── add_tag_handler.py            # Handler tag (35 líneas)
+│   │   │   ├── remove_tag_command.py         # Quitar tag (25 líneas)
+│   │   │   └── remove_tag_handler.py         # Handler quitar tag (30 líneas)
+│   │   ├── trees/
+│   │   │   ├── create_tree_command.py        # Crear árbol (40 líneas)
+│   │   │   ├── create_tree_handler.py        # Handler crear (50 líneas)
+│   │   │   ├── rebuild_tree_command.py       # Reconstruir árbol (45 líneas)
+│   │   │   ├── rebuild_tree_handler.py       # Handler reconstruir (60 líneas)
+│   │   │   ├── import_tree_command.py        # Importar árbol (50 líneas)
+│   │   │   ├── import_tree_handler.py        # Handler importar (70 líneas)
+│   │   │   ├── export_tree_command.py        # Exportar árbol (45 líneas)
+│   │   │   ├── export_tree_handler.py        # Handler exportar (60 líneas)
+│   │   │   ├── validate_tree_command.py      # Validar árbol (40 líneas)
+│   │   │   ├── validate_tree_handler.py      # Handler validar (55 líneas)
+│   │   │   ├── repair_tree_command.py        # Reparar árbol (45 líneas)
+│   │   │   ├── repair_tree_handler.py        # Handler reparar (65 líneas)
+│   │   │   ├── expand_branch_command.py      # Expandir rama (30 líneas)
+│   │   │   ├── expand_branch_handler.py      # Handler expandir (35 líneas)
+│   │   │   ├── collapse_branch_command.py    # Colapsar rama (30 líneas)
+│   │   │   └── collapse_branch_handler.py    # Handler colapsar (35 líneas)
+│   │   ├── projects/
+│   │   │   ├── create_project_command.py     # Crear proyecto (40 líneas)
+│   │   │   ├── create_project_handler.py     # Handler crear (55 líneas)
+│   │   │   ├── load_project_command.py       # Cargar proyecto (35 líneas)
+│   │   │   ├── load_project_handler.py       # Handler cargar (60 líneas)
+│   │   │   ├── save_project_command.py       # Guardar proyecto (40 líneas)
+│   │   │   ├── save_project_handler.py       # Handler guardar (55 líneas)
+│   │   │   ├── close_project_command.py      # Cerrar proyecto (30 líneas)
+│   │   │   ├── close_project_handler.py      # Handler cerrar (40 líneas)
+│   │   │   ├── backup_project_command.py     # Backup proyecto (35 líneas)
+│   │   │   ├── backup_project_handler.py     # Handler backup (50 líneas)
+│   │   │   ├── migrate_project_command.py    # Migrar proyecto (45 líneas)
+│   │   │   ├── migrate_project_handler.py    # Handler migrar (65 líneas)
+│   │   │   ├── archive_project_command.py    # Archivar proyecto (35 líneas)
+│   │   │   └── archive_project_handler.py    # Handler archivar (45 líneas)
+│   │   └── ui/
+│   │       ├── change_theme_command.py       # Cambiar tema (30 líneas)
+│   │       ├── change_theme_handler.py       # Handler tema (40 líneas)
+│   │       ├── resize_panel_command.py       # Redimensionar panel (25 líneas)
+│   │       ├── resize_panel_handler.py       # Handler redimensionar (35 líneas)
+│   │       ├── toggle_panel_command.py       # Alternar panel (20 líneas)
+│   │       ├── toggle_panel_handler.py       # Handler alternar (30 líneas)
+│   │       ├── change_font_command.py        # Cambiar fuente (25 líneas)
+│   │       └── change_font_handler.py        # Handler fuente (35 líneas)
+│   ├── queries/                      # CONSULTAS (CQRS)
+│   │   ├── shared/
+│   │   │   ├── query.py              # Consulta base (15 líneas)
+│   │   │   ├── query_handler.py      # Handler base (25 líneas)
+│   │   │   ├── query_bus.py          # Bus consultas (50 líneas)
+│   │   │   └── query_result.py       # Resultado base (20 líneas)
+│   │   ├── nodes/
+│   │   │   ├── get_node_by_id_query.py       # Obtener por ID (25 líneas)
+│   │   │   ├── get_node_by_id_handler.py     # Handler obtener (35 líneas)
+│   │   │   ├── find_nodes_by_name_query.py   # Buscar por nombre (30 líneas)
+│   │   │   ├── find_nodes_by_name_handler.py # Handler buscar (45 líneas)
+│   │   │   ├── get_child_nodes_query.py      # Obtener hijos (25 líneas)
+│   │   │   ├── get_child_nodes_handler.py    # Handler hijos (40 líneas)
+│   │   │   ├── get_node_ancestors_query.py   # Obtener ancestros (30 líneas)
+│   │   │   ├── get_node_ancestors_handler.py # Handler ancestros (45 líneas)
+│   │   │   ├── search_nodes_query.py         # Buscar nodos (35 líneas)
+│   │   │   ├── search_nodes_handler.py       # Handler buscar (55 líneas)
+│   │   │   ├── get_nodes_by_status_query.py  # Por estado (30 líneas)
+│   │   │   ├── get_nodes_by_status_handler.py # Handler estado (40 líneas)
+│   │   │   ├── get_nodes_by_tag_query.py     # Por tag (25 líneas)
+│   │   │   └── get_nodes_by_tag_handler.py   # Handler tag (35 líneas)
+│   │   ├── trees/
+│   │   │   ├── get_tree_structure_query.py   # Estructura árbol (30 líneas)
+│   │   │   ├── get_tree_structure_handler.py # Handler estructura (50 líneas)
+│   │   │   ├── get_tree_stats_query.py       # Estadísticas (25 líneas)
+│   │   │   ├── get_tree_stats_handler.py     # Handler stats (40 líneas)
+│   │   │   ├── get_tree_path_query.py        # Ruta árbol (25 líneas)
+│   │   │   ├── get_tree_path_handler.py      # Handler ruta (35 líneas)
+│   │   │   ├── validate_tree_query.py        # Validar árbol (30 líneas)
+│   │   │   ├── validate_tree_handler.py      # Handler validar (45 líneas)
+│   │   │   ├── find_orphan_nodes_query.py    # Nodos huérfanos (35 líneas)
+│   │   │   └── find_orphan_nodes_handler.py  # Handler huérfanos (50 líneas)
+│   │   ├── projects/
+│   │   │   ├── get_project_info_query.py     # Info proyecto (25 líneas)
+│   │   │   ├── get_project_info_handler.py   # Handler info (35 líneas)
+│   │   │   ├── get_recent_projects_query.py  # Proyectos recientes (30 líneas)
+│   │   │   ├── get_recent_projects_handler.py # Handler recientes (40 líneas)
+│   │   │   ├── get_project_stats_query.py    # Stats proyecto (25 líneas)
+│   │   │   ├── get_project_stats_handler.py  # Handler stats (40 líneas)
+│   │   │   ├── check_project_health_query.py # Salud proyecto (35 líneas)
+│   │   │   └── check_project_health_handler.py # Handler salud (50 líneas)
+│   │   └── ui/
+│   │       ├── get_theme_info_query.py       # Info tema (20 líneas)
+│   │       ├── get_theme_info_handler.py     # Handler tema (30 líneas)
+│   │       ├── get_panel_state_query.py      # Estado panel (25 líneas)
+│   │       ├── get_panel_state_handler.py    # Handler panel (35 líneas)
+│   │       ├── get_ui_preferences_query.py   # Preferencias UI (30 líneas)
+│   │       └── get_ui_preferences_handler.py # Handler prefs (40 líneas)
+│   ├── services/                     # SERVICIOS DE APLICACIÓN
+│   │   ├── orchestration/
+│   │   │   ├── workflow_orchestrator.py  # Orquestador flujos (90 líneas)
+│   │   │   ├── transaction_manager.py    # Gestor transacciones (80 líneas)
+│   │   │   └── saga_coordinator.py       # Coordinador sagas (85 líneas)
+│   │   ├── integration/
+│   │   │   ├── external_api_client.py    # Cliente API externa (70 líneas)
+│   │   │   ├── webhook_handler.py        # Manejador webhooks (60 líneas)
+│   │   │   └── sync_service.py           # Servicio sincronización (75 líneas)
+│   │   ├── notification/
+│   │   │   ├── notification_service.py   # Servicio notificaciones (65 líneas)
+│   │   │   ├── email_sender.py           # Enviador email (55 líneas)
+│   │   │   └── push_notification.py      # Notificaciones push (50 líneas)
+│   │   └── security/
+│   │       ├── authentication_service.py # Autenticación (70 líneas)
+│   │       ├── authorization_service.py  # Autorización (75 líneas)
+│   │       └── encryption_service.py     # Encriptación (60 líneas)
+│   ├── dto/                          # DATA TRANSFER OBJECTS
+│   │   ├── nodes/
+│   │   │   ├── node_dto.py           # DTO nodo (40 líneas)
+│   │   │   ├── create_node_dto.py    # DTO crear nodo (30 líneas)
+│   │   │   ├── update_node_dto.py    # DTO actualizar (35 líneas)
+│   │   │   └── node_summary_dto.py   # DTO resumen (25 líneas)
+│   │   ├── trees/
+│   │   │   ├── tree_dto.py           # DTO árbol (45 líneas)
+│   │   │   ├── tree_structure_dto.py # DTO estructura (50 líneas)
+│   │   │   └── tree_stats_dto.py     # DTO estadísticas (30 líneas)
+│   │   ├── projects/
+│   │   │   ├── project_dto.py        # DTO proyecto (40 líneas)
+│   │   │   ├── project_info_dto.py   # DTO info (30 líneas)
+│   │   │   └── project_stats_dto.py  # DTO stats (35 líneas)
+│   │   └── ui/
+│   │       ├── theme_dto.py          # DTO tema (25 líneas)
+│   │       ├── panel_state_dto.py    # DTO estado panel (30 líneas)
+│   │       └── preferences_dto.py    # DTO preferencias (35 líneas)
+│   └── mappers/                      # MAPEADORES
+│       ├── node_mapper.py            # Mapear nodos (60 líneas)
+│       ├── tree_mapper.py            # Mapear árboles (70 líneas)
+│       ├── project_mapper.py         # Mapear proyectos (55 líneas)
+│       └── ui_mapper.py              # Mapear UI (45 líneas)
+├── infrastructure/                   # INFRASTRUCTURE LAYER
+│   ├── persistence/
+│   │   ├── repositories/
+│   │   │   ├── json/
+│   │   │   │   ├── json_node_repository.py       # Repo nodos JSON (80 líneas)
+│   │   │   │   ├── json_tree_repository.py       # Repo árbol JSON (90 líneas)
+│   │   │   │   ├── json_project_repository.py    # Repo proyecto JSON (75 líneas)
+│   │   │   │   └── json_base_repository.py       # Repo base JSON (60 líneas)
+│   │   │   ├── sqlite/                           # Para futuro
+│   │   │   │   ├── sqlite_node_repository.py     # Repo nodos SQLite (90 líneas)
+│   │   │   │   ├── sqlite_tree_repository.py     # Repo árbol SQLite (100 líneas)
+│   │   │   │   └── sqlite_project_repository.py  # Repo proyecto SQLite (85 líneas)
+│   │   │   └── memory/
+│   │   │       ├── memory_node_repository.py     # Repo nodos memoria (70 líneas)
+│   │   │       ├── memory_tree_repository.py     # Repo árbol memoria (80 líneas)
+│   │   │       └── memory_project_repository.py  # Repo proyecto memoria (65 líneas)
+│   │   ├── serialization/
+│   │   │   ├── json_serializer.py        # Serializador JSON (60 líneas)
+│   │   │   ├── xml_serializer.py         # Serializador XML (70 líneas)
+│   │   │   ├── yaml_serializer.py        # Serializador YAML (65 líneas)
+│   │   │   ├── binary_serializer.py      # Serializador binario (55 líneas)
+│   │   │   └── serializer_factory.py     # Factory serializadores (40 líneas)
+│   │   ├── migration/
+│   │   │   ├── migration_manager.py      # Gestor migraciones (80 líneas)
+│   │   │   ├── version_detector.py       # Detector versiones (50 líneas)
+│   │   │   ├── data_migrator.py          # Migrador datos (90 líneas)
+│   │   │   └── backup_creator.py         # Creador backups (60 líneas)
+│   │   └── caching/
+│   │       ├── cache_manager.py          # Gestor caché (70 líneas)
+│   │       ├── memory_cache.py           # Caché memoria (60 líneas)
+│   │       ├── file_cache.py             # Caché archivos (65 líneas)
+│   │       └── cache_invalidator.py      # Invalidador caché (45 líneas)
+│   ├── import_export/
+│   │   ├── importers/
+│   │   │   ├── text_importer.py          # Importador texto (80 líneas)
+│   │   │   ├── csv_importer.py           # Importador CSV (70 líneas)
+│   │   │   ├── json_importer.py          # Importador JSON (60 líneas)
+│   │   │   ├── xml_importer.py           # Importador XML (75 líneas)
+│   │   │   ├── markdown_importer.py      # Importador Markdown (85 líneas)
+│   │   │   ├── filesystem_importer.py    # Importador filesystem (90 líneas)
+│   │   │   ├── tree_ascii_importer.py    # Importador árbol ASCII (95 líneas)
+│   │   │   └── legacy_format_importer.py # Importador formatos legacy (80 líneas)
+│   │   ├── exporters/
+│   │   │   ├── txt_exporter.py           # Exportador TXT (70 líneas)
+│   │   │   ├── html_exporter.py          # Exportador HTML (90 líneas)
+│   │   │   ├── pdf_exporter.py           # Exportador PDF (100 líneas)
+│   │   │   ├── docx_exporter.py          # Exportador DOCX (85 líneas)
+│   │   │   ├── latex_exporter.py         # Exportador LaTeX (80 líneas)
+│   │   │   ├── json_exporter.py          # Exportador JSON (55 líneas)
+│   │   │   ├── xml_exporter.py           # Exportador XML (75 líneas)
+│   │   │   ├── csv_exporter.py           # Exportador CSV (60 líneas)
+│   │   │   └── custom_format_exporter.py # Exportador personalizado (95 líneas)
+│   │   ├── parsers/
+│   │   │   ├── tree_structure_parser.py  # Parser estructura árbol (90 líneas)
+│   │   │   ├── markdown_content_parser.py # Parser contenido MD (80 líneas)
+│   │   │   ├── indented_text_parser.py   # Parser texto indentado (75 líneas)
+│   │   │   ├── bullet_list_parser.py     # Parser listas con viñetas (70 líneas)
+│   │   │   ├── numbered_list_parser.py   # Parser listas numeradas (65 líneas)
+│   │   │   ├── folder_path_parser.py     # Parser rutas carpetas (60 líneas)
+│   │   │   └── mixed_format_parser.py    # Parser formatos mixtos (85 líneas)
+│   │   ├── formatters/
+│   │   │   ├── professional_formatter.py # Formateador profesional (80 líneas)
+│   │   │   ├── compact_formatter.py      # Formateador compacto (60 líneas)
+│   │   │   ├── detailed_formatter.py     # Formateador detallado (90 líneas)
+│   │   │   ├── ascii_art_formatter.py    # Formateador ASCII art (85 líneas)
+│   │   │   └── custom_template_formatter.py # Formateador plantillas (95 líneas)
+│   │   ├── detectors/
+│   │   │   ├── format_detector.py        # Detector formatos (70 líneas)
+│   │   │   ├── encoding_detector.py      # Detector codificación (50 líneas)
+│   │   │   ├── structure_detector.py     # Detector estructura (80 líneas)
+│   │   │   └── content_type_detector.py  # Detector tipo contenido (60 líneas)
+│   │   └── validators/
+│   │       ├── import_validator.py       # Validador importación (60 líneas)
+│   │       ├── export_validator.py       # Validador exportación (55 líneas)
+│   │       ├── format_validator.py       # Validador formato (65 líneas)
+│   │       └── content_validator.py      # Validador contenido (70 líneas)
+│   ├── file_system/
+│   │   ├── file_operations.py            # Operaciones archivos (80 líneas)
+│   │   ├── directory_scanner.py          # Escaneador directorios (75 líneas)
+│   │   ├── path_resolver.py              # Resolver rutas (60 líneas)
+│   │   ├── file_watcher.py               # Observador archivos (85 líneas)
+│   │   ├── temp_file_manager.py          # Gestor archivos temp (70 líneas)
+│   │   └── permissions_checker.py        # Verificador permisos (55 líneas)
+│   ├── external_services/
+│   │   ├── ai_integration/
+│   │   │   ├── openai_client.py          # Cliente OpenAI (80 líneas)
+│   │   │   ├── claude_client.py          # Cliente Claude (75 líneas)
+│   │   │   ├── prompt_builder.py         # Constructor prompts (70 líneas)
+│   │   │   ├── response_parser.py        # Parser respuestas (65 líneas)
+│   │   │   └── context_manager.py        # Gestor contexto (60 líneas)
+│   │   ├── cloud_sync/
+│   │   │   ├── dropbox_sync.py           # Sincronización Dropbox (90 líneas)
+│   │   │   ├── google_drive_sync.py      # Sincronización Google Drive (95 líneas)
+│   │   │   ├── onedrive_sync.py          # Sincronización OneDrive (85 líneas)
+│   │   │   └── sync_manager.py           # Gestor sincronización (80 líneas)
+│   │   └── version_control/
+│   │       ├── git_integration.py        # Integración Git (100 líneas)
+│   │       ├── commit_manager.py         # Gestor commits (75 líneas)
+│   │       └── branch_tracker.py         # Rastreador ramas (70 líneas)
+│   ├── logging/
+│   │   ├── logger_factory.py             # Factory loggers (50 líneas)
+│   │   ├── file_logger.py                # Logger archivos (60 líneas)
+│   │   ├── console_logger.py             # Logger consola (45 líneas)
+│   │   ├── remote_logger.py              # Logger remoto (70 líneas)
+│   │   └── log_formatter.py              # Formateador logs (40 líneas)
+│   ├── monitoring/
+│   │   ├── performance_monitor.py        # Monitor rendimiento (80 líneas)
+│   │   ├── memory_monitor.py             # Monitor memoria (70 líneas)
+│   │   ├── error_tracker.py              # Rastreador errores (75 líneas)
+│   │   ├── metrics_collector.py          # Recolector métricas (65 líneas)
+│   │   └── health_checker.py             # Verificador salud (60 líneas)
+│   └── security/
+│       ├── encryption.py                 # Encriptación (70 líneas)
+│       ├── hashing.py                    # Hashing (50 líneas)
+│       ├── token_manager.py              # Gestor tokens (60 líneas)
+│       ├── access_control.py             # Control acceso (75 líneas)
+│       └── audit_logger.py               # Logger auditoría (65 líneas)
+├── presentation/                         # PRESENTATION LAYER
+│   ├── gui/
+│   │   ├── application/
+│   │   │   ├── main_application.py       # Aplicación principal (70 líneas)
+│   │   │   ├── app_context.py            # Contexto aplicación (50 líneas)
+│   │   │   ├── lifecycle_manager.py      # Gestor ciclo vida (60 líneas)
+│   │   │   └── error_boundary.py         # Boundary errores (55 líneas)
+│   │   ├── windows/
+│   │   │   ├── main_window.py            # Ventana principal (80 líneas)
+│   │   │   ├── splash_window.py          # Ventana splash (60 líneas)
+│   │   │   ├── preferences_window.py     # Ventana preferencias (90 líneas)
+│   │   │   ├── about_window.py           # Ventana acerca de (45 líneas)
+│   │   │   ├── help_window.py            # Ventana ayuda (70 líneas)
+│   │   │   └── debug_window.py           # Ventana debug (85 líneas)
+│   │   ├── layouts/
+│   │   │   ├── main_layout.py            # Layout principal (60 líneas)
+│   │   │   ├── panel_layout.py           # Layout paneles (55 líneas)
+│   │   │   ├── responsive_layout.py      # Layout responsivo (70 líneas)
+│   │   │   └── grid_layout.py            # Layout rejilla (50 líneas)
+│   │   ├── panels/
+│   │   │   ├── tree_explorer/
+│   │   │   │   ├── tree_panel.py         # Panel árbol (80 líneas)
+│   │   │   │   ├── tree_widget.py        # Widget árbol (90 líneas)
+│   │   │   │   ├── tree_renderer.py      # Renderizador árbol (85 líneas)
+│   │   │   │   ├── node_widget.py        # Widget nodo (60 líneas)
+│   │   │   │   ├── context_menu.py       # Menú contextual (70 líneas)
+│   │   │   │   ├── toolbar.py            # Barra herramientas (65 líneas)
+│   │   │   │   ├── filter_bar.py         # Barra filtros (55 líneas)
+│   │   │   │   ├── search_box.py         # Caja búsqueda (50 líneas)
+│   │   │   │   └── status_indicator.py   # Indicador estado (40 líneas)
+│   │   │   ├── editor/
+│   │   │   │   ├── editor_container.py   # Contenedor editor (60 líneas)
+│   │   │   │   ├── field_container.py    # Contenedor campos (45 líneas)
+│   │   │   │   ├── name_field.py         # Campo nombre (70 líneas)
+│   │   │   │   ├── markdown_field.py     # Campo markdown (90 líneas)
+│   │   │   │   ├── notes_field.py        # Campo notas (80 líneas)
+│   │   │   │   ├── code_field.py         # Campo código (100 líneas)
+│   │   │   │   ├── field_toolbar.py      # Barra herr. campo (55 líneas)
+│   │   │   │   ├── syntax_highlighter.py # Resaltador sintaxis (85 líneas)
+│   │   │   │   ├── auto_completer.py     # Auto completado (75 líneas)
+│   │   │   │   └── validation_display.py # Display validación (50 líneas)
+│   │   │   ├── preview/
+│   │   │   │   ├── preview_container.py  # Contenedor preview (65 líneas)
+│   │   │   │   ├── mode_selector.py      # Selector modos (50 líneas)
+│   │   │   │   ├── config_panel.py       # Panel configuración (70 líneas)
+│   │   │   │   ├── export_panel.py       # Panel exportación (60 líneas)
+│   │   │   │   ├── preview_widget.py     # Widget preview (80 líneas)
+│   │   │   │   ├── scrollable_view.py    # Vista con scroll (55 líneas)
+│   │   │   │   └── renderers/
+│   │   │   │       ├── base_renderer.py      # Renderizador base (40 líneas)
+│   │   │   │       ├── classic_renderer.py   # Renderizador clásico (80 líneas)
+│   │   │   │       ├── ascii_renderer.py     # Renderizador ASCII (90 líneas)
+│   │   │   │       ├── folders_renderer.py   # Renderizador carpetas (75 líneas)
+│   │   │   │       ├── columns_renderer.py   # Renderizador columnas (100 líneas)
+│   │   │   │       ├── custom_renderer.py    # Renderizador personalizado (85 líneas)
+│   │   │   │       └── template_renderer.py  # Renderizador plantillas (90 líneas)
+│   │   │   ├── dashboard/
+│   │   │   │   ├── dashboard_panel.py    # Panel dashboard (70 líneas)
+│   │   │   │   ├── stats_widget.py       # Widget estadísticas (60 líneas)
+│   │   │   │   ├── activity_widget.py    # Widget actividad (65 líneas)
+│   │   │   │   ├── quick_actions.py      # Acciones rápidas (55 líneas)
+│   │   │   │   ├── recent_projects.py    # Proyectos recientes (50 líneas)
+│   │   │   │   └── system_info.py        # Info sistema (45 líneas)
+│   │   │   └── properties/
+│   │   │       ├── properties_panel.py   # Panel propiedades (70 líneas)
+│   │   │       ├── node_properties.py    # Propiedades nodo (65 líneas)
+│   │   │       ├── metadata_editor.py    # Editor metadatos (60 líneas)
+│   │   │       ├── tags_editor.py        # Editor tags (55 líneas)
+│   │   │       └── permissions_editor.py # Editor permisos (50 líneas)
+│   │   ├── components/
+│   │   │   ├── base/
+│   │   │   │   ├── base_widget.py        # Widget base (40 líneas)
+│   │   │   │   ├── base_panel.py         # Panel base (45 líneas)
+│   │   │   │   ├── base_dialog.py        # Diálogo base (50 líneas)
+│   │   │   │   └── base_container.py     # Contenedor base (35 líneas)
+│   │   │   ├── input/
+│   │   │   │   ├── text_field.py         # Campo texto (60 líneas)
+│   │   │   │   ├── text_area.py          # Área texto (70 líneas)
+│   │   │   │   ├── number_field.py       # Campo número (50 líneas)
+│   │   │   │   ├── date_field.py         # Campo fecha (55 líneas)
+│   │   │   │   ├── checkbox.py           # Checkbox (40 líneas)
+│   │   │   │   ├── radio_button.py       # Botón radio (35 líneas)
+│   │   │   │   ├── dropdown.py           # Dropdown (65 líneas)
+│   │   │   │   ├── slider.py             # Slider (50 líneas)
+│   │   │   │   └── color_picker.py       # Selector color (60 líneas)
+│   │   │   ├── display/
+│   │   │   │   ├── label.py              # Etiqueta (30 líneas)
+│   │   │   │   ├── icon.py               # Icono (35 líneas)
+│   │   │   │   ├── image.py              # Imagen (45 líneas)
+│   │   │   │   ├── progress_bar.py       # Barra progreso (50 líneas)
+│   │   │   │   ├── status_indicator.py   # Indicador estado (40 líneas)
+│   │   │   │   └── tooltip.py            # Tooltip (45 líneas)
+│   │   │   ├── navigation/
+│   │   │   │   ├── button.py             # Botón (50 líneas)
+│   │   │   │   ├── button_group.py       # Grupo botones (45 líneas)
+│   │   │   │   ├── menu.py               # Menú (70 líneas)
+│   │   │   │   ├── menu_item.py          # Item menú (40 líneas)
+│   │   │   │   ├── toolbar.py            # Barra herramientas (65 líneas)
+│   │   │   │   ├── tabs.py               # Pestañas (60 líneas)
+│   │   │   │   └── breadcrumb.py         # Migas pan (50 líneas)
+│   │   │   ├── layout/
+│   │   │   │   ├── splitter.py           # Divisor (55 líneas)
+│   │   │   │   ├── scroll_area.py        # Área scroll (60 líneas)
+│   │   │   │   ├── collapsible.py        # Colapsable (50 líneas)
+│   │   │   │   ├── accordion.py          # Acordeón (65 líneas)
+│   │   │   │   └── card.py               # Tarjeta (45 líneas)
+│   │   │   └── feedback/
+│   │   │       ├── notification.py       # Notificación (50 líneas)
+│   │   │       ├── modal.py              # Modal (65 líneas)
+│   │   │       ├── alert.py              # Alerta (45 líneas)
+│   │   │       ├── loading_spinner.py    # Spinner carga (40 líneas)
+│   │   │       └── error_display.py      # Display error (55 líneas)
+│   │   ├── dialogs/
+│   │   │   ├── file_dialogs/
+│   │   │   │   ├── open_file_dialog.py   # Diálogo abrir (60 líneas)
+│   │   │   │   ├── save_file_dialog.py   # Diálogo guardar (65 líneas)
+│   │   │   │   ├── folder_dialog.py      # Diálogo carpeta (50 líneas)
+│   │   │   │   └── recent_files_dialog.py # Diálogo archivos recientes (70 líneas)
+│   │   │   ├── project_dialogs/
+│   │   │   │   ├── new_project_dialog.py # Diálogo nuevo proyecto (80 líneas)
+│   │   │   │   ├── project_settings_dialog.py # Config proyecto (90 líneas)
+│   │   │   │   ├── import_project_dialog.py # Importar proyecto (75 líneas)
+│   │   │   │   └── export_project_dialog.py # Exportar proyecto (85 líneas)
+│   │   │   ├── node_dialogs/
+│   │   │   │   ├── create_node_dialog.py # Crear nodo (70 líneas)
+│   │   │   │   ├── edit_node_dialog.py   # Editar nodo (80 líneas)
+│   │   │   │   ├── move_node_dialog.py   # Mover nodo (60 líneas)
+│   │   │   │   └── clone_node_dialog.py  # Clonar nodo (65 líneas)
+│   │   │   ├── import_dialogs/
+│   │   │   │   ├── import_text_dialog.py # Importar texto (80 líneas)
+│   │   │   │   ├── import_file_dialog.py # Importar archivo (75 líneas)
+│   │   │   │   ├── import_structure_dialog.py # Importar estructura (90 líneas)
+│   │   │   │   └── format_selection_dialog.py # Selección formato (60 líneas)
+│   │   │   ├── export_dialogs/
+│   │   │   │   ├── export_options_dialog.py # Opciones exportación (85 líneas)
+│   │   │   │   ├── format_config_dialog.py # Config formato (70 líneas)
+│   │   │   │   ├── template_dialog.py     # Plantillas (65 líneas)
+│   │   │   │   └── preview_export_dialog.py # Preview exportación (80 líneas)
+│   │   │   ├── preferences_dialogs/
+│   │   │   │   ├── general_preferences.py # Preferencias generales (70 líneas)
+│   │   │   │   ├── theme_preferences.py   # Preferencias tema (60 líneas)
+│   │   │   │   ├── editor_preferences.py  # Preferencias editor (80 líneas)
+│   │   │   │   ├── export_preferences.py  # Preferencias export (65 líneas)
+│   │   │   │   └── advanced_preferences.py # Preferencias avanzadas (90 líneas)
+│   │   │   └── utility_dialogs/
+│   │   │       ├── search_dialog.py       # Diálogo búsqueda (75 líneas)
+│   │   │       ├── replace_dialog.py      # Diálogo reemplazo (70 líneas)
+│   │   │       ├── find_in_files_dialog.py # Buscar en archivos (85 líneas)
+│   │   │       ├── statistics_dialog.py   # Diálogo estadísticas (60 líneas)
+│   │   │       └── validation_dialog.py   # Diálogo validación (55 líneas)
+│   │   ├── events/
+│   │   │   ├── event_handlers/
+│   │   │   │   ├── ui_event_handler.py    # Manejador eventos UI (60 líneas)
+│   │   │   │   ├── mouse_handler.py       # Manejador mouse (55 líneas)
+│   │   │   │   ├── keyboard_handler.py    # Manejador teclado (65 líneas)
+│   │   │   │   ├── drag_drop_handler.py   # Manejador drag&drop (80 líneas)
+│   │   │   │   └── window_handler.py      # Manejador ventana (50 líneas)
+│   │   │   ├── gestures/
+│   │   │   │   ├── click_gesture.py       # Gesto click (40 líneas)
+│   │   │   │   ├── double_click_gesture.py # Gesto doble click (35 líneas)
+│   │   │   │   ├── drag_gesture.py        # Gesto arrastre (50 líneas)
+│   │   │   │   ├── hover_gesture.py       # Gesto hover (35 líneas)
+│   │   │   │   └── scroll_gesture.py      # Gesto scroll (45 líneas)
+│   │   │   └── shortcuts/
+│   │   │       ├── shortcut_manager.py    # Gestor atajos (70 líneas)
+│   │   │       ├── key_binding.py         # Vinculación teclas (50 líneas)
+│   │   │       ├── action_mapper.py       # Mapeador acciones (60 líneas)
+│   │   │       └── context_shortcuts.py   # Atajos contextuales (55 líneas)
+│   │   └── styling/
+│   │       ├── theme_system/
+│   │       │   ├── theme_manager.py       # Gestor temas (80 líneas)
+│   │       │   ├── theme_loader.py        # Cargador temas (60 líneas)
+│   │       │   ├── theme_applier.py       # Aplicador temas (70 líneas)
+│   │       │   ├── color_scheme.py        # Esquema colores (55 líneas)
+│   │       │   ├── font_manager.py        # Gestor fuentes (65 líneas)
+│   │       │   └── style_sheet.py         # Hoja estilos (50 líneas)
+│   │       ├── animations/
+│   │       │   ├── animation_manager.py   # Gestor animaciones (70 líneas)
+│   │       │   ├── fade_animation.py      # Animación fade (45 líneas)
+│   │       │   ├── slide_animation.py     # Animación slide (50 líneas)
+│   │       │   ├── scale_animation.py     # Animación escala (40 líneas)
+│   │       │   └── custom_animation.py    # Animación personalizada (60 líneas)
+│   │       └── icons/
+│   │           ├── icon_manager.py        # Gestor iconos (60 líneas)
+│   │           ├── svg_icon.py            # Icono SVG (50 líneas)
+│   │           ├── bitmap_icon.py         # Icono bitmap (45 líneas)
+│   │           └── icon_factory.py        # Factory iconos (40 líneas)
+│   ├── controllers/
+│   │   ├── main_controller.py            # Controlador principal (80 líneas)
+│   │   ├── tree_controller.py            # Controlador árbol (90 líneas)
+│   │   ├── editor_controller.py          # Controlador editor (85 líneas)
+│   │   ├── preview_controller.py         # Controlador preview (80 líneas)
+│   │   ├── project_controller.py         # Controlador proyecto (75 líneas)
+│   │   ├── import_controller.py          # Controlador importación (70 líneas)
+│   │   ├── export_controller.py          # Controlador exportación (75 líneas)
+│   │   ├── search_controller.py          # Controlador búsqueda (65 líneas)
+│   │   ├── preferences_controller.py     # Controlador preferencias (60 líneas)
+│   │   └── theme_controller.py           # Controlador tema (55 líneas)
+│   ├── view_models/
+│   │   ├── main_view_model.py            # ViewModel principal (70 líneas)
+│   │   ├── tree_view_model.py            # ViewModel árbol (80 líneas)
+│   │   ├── node_view_model.py            # ViewModel nodo (60 líneas)
+│   │   ├── editor_view_model.py          # ViewModel editor (75 líneas)
+│   │   ├── preview_view_model.py         # ViewModel preview (70 líneas)
+│   │   ├── project_view_model.py         # ViewModel proyecto (65 líneas)
+│   │   └── preferences_view_model.py     # ViewModel preferencias (55 líneas)
+│   └── adapters/
+│       ├── tkinter_adapter.py            # Adaptador Tkinter (90 líneas)
+│       ├── qt_adapter.py                 # Adaptador Qt (futuro) (100 líneas)
+│       ├── gtk_adapter.py                # Adaptador GTK (futuro) (95 líneas)
+│       └── web_adapter.py                # Adaptador Web (futuro) (85 líneas)
+├── shared/                               # SHARED LAYER
+│   ├── common/
+│   │   ├── constants.py                  # Constantes (40 líneas)
+│   │   ├── enums.py                      # Enumeraciones (60 líneas)
+│   │   ├── exceptions.py                 # Excepciones comunes (50 líneas)
+│   │   └── interfaces.py                 # Interfaces comunes (45 líneas)
+│   ├── utils/
+│   │   ├── string_utils.py               # Utilidades string (60 líneas)
+│   │   ├── file_utils.py                 # Utilidades archivos (80 líneas)
+│   │   ├── path_utils.py                 # Utilidades rutas (70 líneas)
+│   │   ├── date_utils.py                 # Utilidades fechas (50 líneas)
+│   │   ├── validation_utils.py           # Utilidades validación (75 líneas)
+│   │   ├── collection_utils.py           # Utilidades colecciones (65 líneas)
+│   │   ├── hash_utils.py                 # Utilidades hash (45 líneas)
+│   │   ├── encoding_utils.py             # Utilidades codificación (55 líneas)
+│   │   ├── json_utils.py                 # Utilidades JSON (60 líneas)
+│   │   ├── xml_utils.py                  # Utilidades XML (65 líneas)
+│   │   ├── regex_utils.py                # Utilidades regex (50 líneas)
+│   │   ├── math_utils.py                 # Utilidades matemáticas (45 líneas)
+│   │   ├── format_utils.py               # Utilidades formato (70 líneas)
+│   │   ├── conversion_utils.py           # Utilidades conversión (60 líneas)
+│   │   └── system_utils.py               # Utilidades sistema (80 líneas)
+│   ├── patterns/
+│   │   ├── singleton.py                  # Patrón Singleton (30 líneas)
+│   │   ├── factory.py                    # Patrón Factory (40 líneas)
+│   │   ├── observer.py                   # Patrón Observer (50 líneas)
+│   │   ├── command.py                    # Patrón Command (45 líneas)
+│   │   ├── strategy.py                   # Patrón Strategy (40 líneas)
+│   │   ├── decorator.py                  # Patrón Decorator (35 líneas)
+│   │   ├── adapter.py                    # Patrón Adapter (40 líneas)
+│   │   └── builder.py                    # Patrón Builder (50 líneas)
+│   ├── configuration/
+│   │   ├── config_loader.py              # Cargador configuración (60 líneas)
+│   │   ├── config_validator.py           # Validador configuración (55 líneas)
+│   │   ├── settings_manager.py           # Gestor configuraciones (70 líneas)
+│   │   ├── environment_config.py         # Config entorno (45 líneas)
+│   │   ├── user_preferences.py           # Preferencias usuario (65 líneas)
+│   │   └── default_settings.py           # Configuración por defecto (50 líneas)
+│   ├── security/
+│   │   ├── password_manager.py           # Gestor contraseñas (70 líneas)
+│   │   ├── token_generator.py            # Generador tokens (50 líneas)
+│   │   ├── permission_checker.py         # Verificador permisos (60 líneas)
+│   │   ├── audit_logger.py               # Logger auditoría (65 líneas)
+│   │   └── secure_storage.py             # Almacenamiento seguro (75 líneas)
+│   ├── performance/
+│   │   ├── cache_decorator.py            # Decorador caché (40 líneas)
+│   │   ├── lazy_loader.py                # Cargador perezoso (50 líneas)
+│   │   ├── memory_pool.py                # Pool memoria (60 líneas)
+│   │   ├── profiler.py                   # Perfilador (70 líneas)
+│   │   ├── benchmark.py                  # Benchmark (55 líneas)
+│   │   └── optimization.py               # Optimizaciones (65 líneas)
+│   ├── localization/
+│   │   ├── translator.py                 # Traductor (60 líneas)
+│   │   ├── locale_manager.py             # Gestor locales (55 líneas)
+│   │   ├── message_formatter.py          # Formateador mensajes (50 líneas)
+│   │   └── resource_loader.py            # Cargador recursos (45 líneas)
+│   └── testing/
+│       ├── test_fixtures.py              # Fixtures pruebas (70 líneas)
+│       ├── mock_factory.py               # Factory mocks (60 líneas)
+│       ├── assertion_helpers.py          # Helpers aserciones (55 líneas)
+│       ├── test_data_builder.py          # Constructor datos prueba (65 líneas)
+│       └── integration_helpers.py        # Helpers integración (60 líneas)
+├── plugins/                              # PLUGIN SYSTEM
+│   ├── plugin_system/
+│   │   ├── plugin_manager.py             # Gestor plugins (80 líneas)
+│   │   ├── plugin_loader.py              # Cargador plugins (70 líneas)
+│   │   ├── plugin_registry.py            # Registro plugins (60 líneas)
+│   │   ├── plugin_interface.py           # Interfaz plugin (45 líneas)
+│   │   ├── plugin_config.py              # Config plugin (50 líneas)
+│   │   ├── plugin_validator.py           # Validador plugin (55 líneas)
+│   │   └── plugin_sandbox.py             # Sandbox plugin (75 líneas)
+│   ├── built_in_plugins/
+│   │   ├── markdown_tools/
+│   │   │   ├── markdown_plugin.py        # Plugin markdown (80 líneas)
+│   │   │   ├── md_syntax_highlighter.py  # Resaltador MD (70 líneas)
+│   │   │   ├── md_preview.py             # Preview MD (65 líneas)
+│   │   │   ├── md_exporter.py            # Exportador MD (60 líneas)
+│   │   │   └── md_validator.py           # Validador MD (50 líneas)
+│   │   ├── code_tools/
+│   │   │   ├── code_plugin.py            # Plugin código (75 líneas)
+│   │   │   ├── syntax_highlighter.py     # Resaltador sintaxis (85 líneas)
+│   │   │   ├── code_formatter.py         # Formateador código (70 líneas)
+│   │   │   ├── code_validator.py         # Validador código (65 líneas)
+│   │   │   └── language_detector.py      # Detector lenguaje (55 líneas)
+│   │   ├── export_tools/
+│   │   │   ├── advanced_export_plugin.py # Plugin exportación avanzada (90 líneas)
+│   │   │   ├── pdf_generator.py          # Generador PDF (80 líneas)
+│   │   │   ├── html_generator.py         # Generador HTML (75 líneas)
+│   │   │   ├── latex_generator.py        # Generador LaTeX (85 líneas)
+│   │   │   └── custom_template_engine.py # Motor plantillas (95 líneas)
+│   │   ├── ai_tools/
+│   │   │   ├── ai_assistant_plugin.py    # Plugin asistente IA (90 líneas)
+│   │   │   ├── content_generator.py      # Generador contenido (80 líneas)
+│   │   │   ├── smart_suggestions.py      # Sugerencias inteligentes (75 líneas)
+│   │   │   ├── auto_organizer.py         # Organizador automático (85 líneas)
+│   │   │   └── semantic_search.py        # Búsqueda semántica (80 líneas)
+│   │   └── collaboration_tools/
+│   │       ├── collaboration_plugin.py   # Plugin colaboración (85 líneas)
+│   │       ├── real_time_sync.py         # Sincronización tiempo real (90 líneas)
+│   │       ├── comment_system.py         # Sistema comentarios (75 líneas)
+│   │       ├── version_control.py        # Control versiones (80 líneas)
+│   │       └── user_management.py        # Gestión usuarios (70 líneas)
+│   ├── third_party_plugins/
+│   │   ├── plugin_template/
+│   │   │   ├── plugin_template.py        # Plantilla plugin (60 líneas)
+│   │   │   ├── config_template.py        # Plantilla config (40 líneas)
+│   │   │   ├── ui_template.py            # Plantilla UI (70 líneas)
+│   │   │   └── docs_template.md          # Documentación plantilla
+│   │   └── example_plugins/
+│   │       ├── hello_world_plugin.py     # Plugin ejemplo (50 líneas)
+│   │       ├── custom_exporter_plugin.py # Plugin exportador personalizado (75 líneas)
+│   │       └── theme_plugin.py           # Plugin tema personalizado (65 líneas)
+│   └── plugin_api/
+│       ├── api_interface.py              # Interfaz API (60 líneas)
+│       ├── event_hooks.py                # Ganchos eventos (70 líneas)
+│       ├── ui_extensions.py              # Extensiones UI (65 líneas)
+│       ├── data_access.py                # Acceso datos (55 líneas)
+│       └── utility_functions.py          # Funciones utilidad (50 líneas)
+├── resources/                            # RECURSOS
+│   ├── themes/
+│   │   ├── light_theme.json              # Tema claro
+│   │   ├── dark_theme.json               # Tema oscuro
+│   │   ├── sepia_theme.json              # Tema sepia
+│   │   ├── high_contrast_theme.json      # Tema alto contraste
+│   │   ├── custom_theme_template.json    # Plantilla tema personalizado
+│   │   └── theme_schema.json             # Esquema validación tema
+│   ├── icons/
+│   │   ├── svg/                          # Iconos SVG
+│   │   │   ├── file_icons/
+│   │   │   ├── folder_icons/
+│   │   │   ├── action_icons/
+│   │   │   ├── status_icons/
+│   │   │   └── ui_icons/
+│   │   ├── png/                          # Iconos PNG
+│   │   │   ├── 16x16/
+│   │   │   ├── 24x24/
+│   │   │   ├── 32x32/
+│   │   │   └── 48x48/
+│   │   └── icon_sets/
+│   │       ├── material_design/
+│   │       ├── feather/
+│   │       └── custom/
+│   ├── fonts/
+│   │   ├── ui_fonts/
+│   │   │   ├── segoe_ui/
+│   │   │   ├── roboto/
+│   │   │   └── system_fonts/
+│   │   ├── code_fonts/
+│   │   │   ├── consolas/
+│   │   │   ├── fira_code/
+│   │   │   ├── source_code_pro/
+│   │   │   └── jetbrains_mono/
+│   │   └── custom_fonts/
+│   ├── templates/
+│   │   ├── export_templates/
+│   │   │   ├── professional_report.template
+│   │   │   ├── simple_outline.template
+│   │   │   ├── detailed_documentation.template
+│   │   │   ├── academic_paper.template
+│   │   │   └── custom_template.template
+│   │   ├── project_templates/
+│   │   │   ├── software_project.template
+│   │   │   ├── research_project.template
+│   │   │   ├── documentation_project.template
+│   │   │   └── personal_notes.template
+│   │   └── import_templates/
+│   │       ├── filesystem_import.template
+│   │       ├── markdown_import.template
+│   │       └── custom_format.template
+│   ├── localization/
+│   │   ├── en_US/
+│   │   │   ├── messages.json
+│   │   │   ├── ui_labels.json
+│   │   │   ├── error_messages.json
+│   │   │   └── help_text.json
+│   │   ├── es_ES/
+│   │   │   ├── messages.json
+│   │   │   ├── ui_labels.json
+│   │   │   ├── error_messages.json
+│   │   │   └── help_text.json
+│   │   ├── fr_FR/
+│   │   └── de_DE/
+│   ├── documentation/
+│   │   ├── user_guide/
+│   │   │   ├── getting_started.md
+│   │   │   ├── basic_usage.md
+│   │   │   ├── advanced_features.md
+│   │   │   ├── import_export.md
+│   │   │   └── troubleshooting.md
+│   │   ├── developer_guide/
+│   │   │   ├── architecture_overview.md
+│   │   │   ├── plugin_development.md
+│   │   │   ├── api_reference.md
+│   │   │   ├── contributing.md
+│   │   │   └── coding_standards.md
+│   │   └── api_docs/
+│   │       ├── domain_api.md
+│   │       ├── application_api.md
+│   │       ├── infrastructure_api.md
+│   │       └── presentation_api.md
+│   ├── configuration/
+│   │   ├── default_config.json           # Configuración por defecto
+│   │   ├── development_config.json       # Config desarrollo
+│   │   ├── production_config.json        # Config producción
+│   │   ├── test_config.json              # Config pruebas
+│   │   └── config_schema.json            # Esquema validación config
+│   └── samples/
+│       ├── sample_projects/
+│       │   ├── software_architecture.wjp
+│       │   ├── research_notes.wjp
+│       │   ├── documentation_outline.wjp
+│       │   └── personal_organizer.wjp
+│       ├── import_samples/
+│       │   ├── filesystem_tree.txt
+│       │   ├── markdown_outline.md
+│       │   ├── indented_list.txt
+│       │   └── json_structure.json
+│       └── export_samples/
+│           ├── professional_report.txt
+│           ├── html_documentation.html
+│           ├── latex_document.tex
+│           └── pdf_export.pdf
+├── tests/                                # TESTS
+│   ├── unit_tests/
+│   │   ├── domain/
+│   │   │   ├── node/
+│   │   │   │   ├── test_node_entity.py
+│   │   │   │   ├── test_node_value_objects.py
+│   │   │   │   ├── test_node_services.py
+│   │   │   │   └── test_node_specifications.py
+│   │   │   ├── tree/
+│   │   │   │   ├── test_tree_entity.py
+│   │   │   │   ├── test_tree_algorithms.py
+│   │   │   │   └── test_tree_services.py
+│   │   │   └── project/
+│   │   │       ├── test_project_entity.py
+│   │   │       └── test_project_services.py
+│   │   ├── application/
+│   │   │   ├── commands/
+│   │   │   │   ├── test_node_commands.py
+│   │   │   │   ├── test_tree_commands.py
+│   │   │   │   └── test_project_commands.py
+│   │   │   ├── queries/
+│   │   │   │   ├── test_node_queries.py
+│   │   │   │   ├── test_tree_queries.py
+│   │   │   │   └── test_project_queries.py
+│   │   │   └── services/
+│   │   │       ├── test_orchestration_services.py
+│   │   │       └── test_integration_services.py
+│   │   ├── infrastructure/
+│   │   │   ├── persistence/
+│   │   │   │   ├── test_repositories.py
+│   │   │   │   ├── test_serializers.py
+│   │   │   │   └── test_migration.py
+│   │   │   ├── import_export/
+│   │   │   │   ├── test_importers.py
+│   │   │   │   ├── test_exporters.py
+│   │   │   │   ├── test_parsers.py
+│   │   │   │   └── test_formatters.py
+│   │   │   └── external_services/
+│   │   │       ├── test_ai_integration.py
+│   │   │       └── test_cloud_sync.py
+│   │   ├── presentation/
+│   │   │   ├── controllers/
+│   │   │   │   ├── test_main_controller.py
+│   │   │   │   ├── test_tree_controller.py
+│   │   │   │   └── test_editor_controller.py
+│   │   │   ├── view_models/
+│   │   │   │   ├── test_tree_view_model.py
+│   │   │   │   └── test_editor_view_model.py
+│   │   │   └── components/
+│   │   │       ├── test_input_components.py
+│   │   │       └── test_display_components.py
+│   │   └── shared/
+│   │       ├── test_utils.py
+│   │       ├── test_patterns.py
+│   │       └── test_configuration.py
+│   ├── integration_tests/
+│   │   ├── workflows/
+│   │   │   ├── test_create_project_workflow.py
+│   │   │   ├── test_import_export_workflow.py
+│   │   │   ├── test_node_management_workflow.py
+│   │   │   └── test_collaboration_workflow.py
+│   │   ├── data_flow/
+│   │   │   ├── test_command_query_flow.py
+│   │   │   ├── test_event_flow.py
+│   │   │   └── test_persistence_flow.py
+│   │   ├── cross_layer/
+│   │   │   ├── test_domain_application.py
+│   │   │   ├── test_application_infrastructure.py
+│   │   │   └── test_presentation_application.py
+│   │   └── plugins/
+│   │       ├── test_plugin_loading.py
+│   │       ├── test_plugin_communication.py
+│   │       └── test_built_in_plugins.py
+│   ├── performance_tests/
+│   │   ├── load_tests/
+│   │   │   ├── test_large_tree_performance.py    # 10k+ nodos
+│   │   │   ├── test_import_performance.py        # Archivos grandes
+│   │   │   ├── test_export_performance.py        # Exportación masiva
+│   │   │   └── test_ui_responsiveness.py         # UI con datos grandes
+│   │   ├── memory_tests/
+│   │   │   ├── test_memory_usage.py
+│   │   │   ├── test_memory_leaks.py
+│   │   │   └── test_garbage_collection.py
+│   │   ├── stress_tests/
+│   │   │   ├── test_concurrent_operations.py
+│   │   │   ├── test_rapid_changes.py
+│   │   │   └── test_resource_exhaustion.py
+│   │   └── benchmark_tests/
+│   │       ├── test_operation_benchmarks.py
+│   │       ├── test_algorithm_benchmarks.py
+│   │       └── test_ui_benchmarks.py
+│   ├── ui_tests/
+│   │   ├── automated_ui/
+│   │   │   ├── test_tree_panel_ui.py
+│   │   │   ├── test_editor_panel_ui.py
+│   │   │   ├── test_preview_panel_ui.py
+│   │   │   ├── test_drag_drop_ui.py
+│   │   │   └── test_dialog_ui.py
+│   │   ├── visual_regression/
+│   │   │   ├── test_theme_consistency.py
+│   │   │   ├── test_layout_consistency.py
+│   │   │   └── test_component_rendering.py
+│   │   └── accessibility/
+│   │       ├── test_keyboard_navigation.py
+│   │       ├── test_screen_reader.py
+│   │       └── test_color_contrast.py
+│   ├── acceptance_tests/
+│   │   ├── user_stories/
+│   │   │   ├── test_create_project_story.py
+│   │   │   ├── test_organize_nodes_story.py
+│   │   │   ├── test_export_documentation_story.py
+│   │   │   └── test_collaborate_project_story.py
+│   │   ├── scenarios/
+│   │   │   ├── test_beginner_user_scenario.py
+│   │   │   ├── test_power_user_scenario.py
+│   │   │   └── test_developer_scenario.py
+│   │   └── end_to_end/
+│   │       ├── test_complete_workflow.py
+│   │       ├── test_error_recovery.py
+│   │       └── test_data_integrity.py
+│   ├── test_data/
+│   │   ├── fixtures/
+│   │   │   ├── sample_nodes.json
+│   │   │   ├── sample_trees.json
+│   │   │   ├── sample_projects.json
+│   │   │   └── test_configurations.json
+│   │   ├── mock_data/
+│   │   │   ├── large_tree_data.json         # 10k nodos
+│   │   │   ├── complex_structure_data.json  # Estructura compleja
+│   │   │   └── edge_case_data.json          # Casos extremos
+│   │   ├── import_samples/
+│   │   │   ├── various_text_formats/
+│   │   │   ├── malformed_data/
+│   │   │   └── edge_cases/
+│   │   └── export_references/
+│   │       ├── expected_txt_outputs/
+│   │       ├── expected_html_outputs/
+│   │       └── expected_pdf_outputs/
+│   ├── test_utilities/
+│   │   ├── test_builders/
+│   │   │   ├── node_builder.py
+│   │   │   ├── tree_builder.py
+│   │   │   ├── project_builder.py
+│   │   │   └── ui_state_builder.py
+│   │   ├── mock_factories/
+│   │   │   ├── repository_mocks.py
+│   │   │   ├── service_mocks.py
+│   │   │   ├── ui_component_mocks.py
+│   │   │   └── external_service_mocks.py
+│   │   ├── assertion_helpers/
+│   │   │   ├── domain_assertions.py
+│   │   │   ├── ui_assertions.py
+│   │   │   └── file_assertions.py
+│   │   └── test_fixtures/
+│   │       ├── database_fixtures.py
+│   │       ├── file_system_fixtures.py
+│   │       └── ui_fixtures.py
+│   └── test_configuration/
+│       ├── pytest.ini
+│       ├── coverage.ini
+│       ├── test_environments.json
+│       └── ci_configuration.yaml
+├── tools/                                # HERRAMIENTAS DE DESARROLLO
+│   ├── development/
+│   │   ├── code_generators/
+│   │   │   ├── entity_generator.py       # Generador entidades (80 líneas)
+│   │   │   ├── command_generator.py      # Generador comandos (75 líneas)
+│   │   │   ├── query_generator.py        # Generador consultas (70 líneas)
+│   │   │   ├── repository_generator.py   # Generador repositorios (85 líneas)
+│   │   │   └── ui_component_generator.py # Generador componentes UI (90 líneas)
+│   │   ├── scaffolding/
+│   │   │   ├── project_scaffolder.py     # Scaffolder proyecto (100 líneas)
+│   │   │   ├── plugin_scaffolder.py      # Scaffolder plugin (85 líneas)
+│   │   │   ├── test_scaffolder.py        # Scaffolder pruebas (80 líneas)
+│   │   │   └── feature_scaffolder.py     # Scaffolder features (90 líneas)
+│   │   ├── refactoring/
+│   │   │   ├── code_analyzer.py          # Analizador código (95 líneas)
+│   │   │   ├── dependency_analyzer.py    # Analizador dependencias (85 líneas)
+│   │   │   ├── complexity_analyzer.py    # Analizador complejidad (80 líneas)
+│   │   │   └── refactoring_suggestions.py # Sugerencias refactoring (90 líneas)
+│   │   └── validation/
+│   │       ├── architecture_validator.py # Validador arquitectura (100 líneas)
+│   │       ├── naming_validator.py       # Validador nombres (70 líneas)
+│   │       ├── dependency_validator.py   # Validador dependencias (80 líneas)
+│   │       └── code_quality_validator.py # Validador calidad (85 líneas)
+│   ├── build/
+│   │   ├── build_scripts/
+│   │   │   ├── build_application.py      # Script build app (90 líneas)
+│   │   │   ├── package_resources.py      # Empaquetado recursos (80 líneas)
+│   │   │   ├── create_installer.py       # Creador instalador (95 líneas)
+│   │   │   └── deploy_application.py     # Despliegue app (85 líneas)
+│   │   ├── packaging/
+│   │   │   ├── windows_packager.py       # Empaquetador Windows (90 líneas)
+│   │   │   ├── macos_packager.py         # Empaquetador macOS (85 líneas)
+│   │   │   ├── linux_packager.py         # Empaquetador Linux (80 líneas)
+│   │   │   └── cross_platform_packager.py # Empaquetador multiplataforma (100 líneas)
+│   │   └── distribution/
+│   │       ├── app_store_publisher.py    # Publicador tiendas (90 líneas)
+│   │       ├── update_manager.py         # Gestor actualizaciones (85 líneas)
+│   │       └── license_manager.py        # Gestor licencias (70 líneas)
+│   ├── documentation/
+│   │   ├── doc_generators/
+│   │   │   ├── api_doc_generator.py       # Generador docs API (85 líneas)
+│   │   │   ├── user_guide_generator.py   # Generador guía usuario (80 líneas)
+│   │   │   ├── changelog_generator.py    # Generador changelog (70 líneas)
+│   │   │   └── architecture_doc_generator.py # Generador docs arquitectura (90 líneas)
+│   │   ├── diagram_generators/
+│   │   │   ├── class_diagram_generator.py # Generador diagramas clase (85 líneas)
+│   │   │   ├── sequence_diagram_generator.py # Generador diagramas secuencia (80 líneas)
+│   │   │   ├── component_diagram_generator.py # Generador diagramas componente (75 líneas)
+│   │   │   └── dependency_graph_generator.py # Generador grafos dependencia (90 líneas)
+│   │   └── validation/
+│   │       ├── doc_validator.py          # Validador documentación (70 líneas)
+│   │       ├── link_checker.py           # Verificador enlaces (65 líneas)
+│   │       └── spelling_checker.py       # Corrector ortografía (60 líneas)
+│   ├── testing/
+│   │   ├── test_runners/
+│   │   │   ├── unit_test_runner.py       # Ejecutor pruebas unitarias (80 líneas)
+│   │   │   ├── integration_test_runner.py # Ejecutor pruebas integración (85 líneas)
+│   │   │   ├── ui_test_runner.py         # Ejecutor pruebas UI (90 líneas)
+│   │   │   └── performance_test_runner.py # Ejecutor pruebas rendimiento (95 líneas)
+│   │   ├── test_data_generators/
+│   │   │   ├── random_data_generator.py  # Generador datos aleatorios (80 líneas)
+│   │   │   ├── scenario_generator.py     # Generador escenarios (85 líneas)
+│   │   │   ├── large_dataset_generator.py # Generador datasets grandes (90 líneas)
+│   │   │   └── edge_case_generator.py    # Generador casos extremos (75 líneas)
+│   │   ├── coverage_tools/
+│   │   │   ├── coverage_analyzer.py      # Analizador cobertura (80 líneas)
+│   │   │   ├── coverage_reporter.py      # Reportero cobertura (75 líneas)
+│   │   │   └── coverage_validator.py     # Validador cobertura (70 líneas)
+│   │   └── quality_tools/
+│   │       ├── code_quality_checker.py   # Verificador calidad (85 líneas)
+│   │       ├── performance_profiler.py   # Perfilador rendimiento (90 líneas)
+│   │       └── security_scanner.py       # Escáner seguridad (80 líneas)
+│   ├── deployment/
+│   │   ├── environment_setup/
+│   │   │   ├── dev_environment.py        # Entorno desarrollo (80 líneas)
+│   │   │   ├── test_environment.py       # Entorno pruebas (75 líneas)
+│   │   │   ├── staging_environment.py    # Entorno staging (80 líneas)
+│   │   │   └── production_environment.py # Entorno producción (85 líneas)
+│   │   ├── configuration_management/
+│   │   │   ├── config_manager.py         # Gestor configuraciones (85 líneas)
+│   │   │   ├── environment_variables.py  # Variables entorno (70 líneas)
+│   │   │   ├── secret_manager.py         # Gestor secretos (75 líneas)
+│   │   │   └── feature_flags.py          # Flags características (65 líneas)
+│   │   └── monitoring/
+│   │       ├── health_monitor.py         # Monitor salud (80 líneas)
+│   │       ├── performance_monitor.py    # Monitor rendimiento (85 líneas)
+│   │       ├── error_monitor.py          # Monitor errores (75 líneas)
+│   │       └── usage_analytics.py        # Analytics uso (80 líneas)
+│   └── maintenance/
+│       ├── database_tools/
+│       │   ├── migration_runner.py       # Ejecutor migraciones (80 líneas)
+│       │   ├── backup_manager.py         # Gestor backups (85 líneas)
+│       │   ├── data_validator.py         # Validador datos (75 líneas)
+│       │   └── cleanup_tools.py          # Herramientas limpieza (70 líneas)
+│       ├── log_analysis/
+│       │   ├── log_parser.py             # Parser logs (80 líneas)
+│       │   ├── error_analyzer.py         # Analizador errores (85 líneas)
+│       │   ├── performance_analyzer.py   # Analizador rendimiento (80 líneas)
+│       │   └── usage_analyzer.py         # Analizador uso (75 líneas)
+│       └── system_maintenance/
+│           ├── cache_cleaner.py          # Limpiador caché (60 líneas)
+│           ├── temp_file_cleaner.py      # Limpiador archivos temp (55 líneas)
+│           ├── log_rotator.py            # Rotador logs (65 líneas)
+│           └── system_optimizer.py       # Optimizador sistema (80 líneas)
+├── scripts/                              # SCRIPTS DE AUTOMATIZACIÓN
+│   ├── setup/
+│   │   ├── install_dependencies.py       # Instalador dependencias (70 líneas)
+│   │   ├── setup_environment.py          # Configurador entorno (80 líneas)
+│   │   ├── initialize_database.py        # Inicializador BD (75 líneas)
+│   │   └── first_run_setup.py            # Configuración primer uso (85 líneas)
+│   ├── development/
+│   │   ├── run_dev_server.py             # Servidor desarrollo (60 líneas)
+│   │   ├── watch_files.py                # Observador archivos (70 líneas)
+│   │   ├── auto_reload.py                # Recarga automática (65 líneas)
+│   │   └── debug_tools.py                # Herramientas debug (75 líneas)
+│   ├── testing/
+│   │   ├── run_all_tests.py              # Ejecutor todas las pruebas (80 líneas)
+│   │   ├── run_specific_tests.py         # Ejecutor pruebas específicas (70 líneas)
+│   │   ├── generate_test_data.py         # Generador datos prueba (85 líneas)
+│   │   └── cleanup_test_data.py          # Limpiador datos prueba (60 líneas)
+│   ├── build_and_deploy/
+│   │   ├── build_release.py              # Constructor release (90 líneas)
+│   │   ├── package_application.py        # Empaquetador aplicación (85 líneas)
+│   │   ├── deploy_to_staging.py          # Despliegue staging (80 líneas)
+│   │   ├── deploy_to_production.py       # Despliegue producción (85 líneas)
+│   │   └── rollback_deployment.py        # Rollback despliegue (75 líneas)
+│   ├── maintenance/
+│   │   ├── backup_data.py                # Backup datos (70 líneas)
+│   │   ├── restore_data.py               # Restaurar datos (75 líneas)
+│   │   ├── migrate_data.py               # Migrar datos (80 líneas)
+│   │   ├── cleanup_old_files.py          # Limpiar archivos antiguos (65 líneas)
+│   │   └── optimize_performance.py       # Optimizar rendimiento (85 líneas)
+│   └── utilities/
+│       ├── file_organizer.py             # Organizador archivos (75 líneas)
+│       ├── code_formatter.py             # Formateador código (70 líneas)
+│       ├── dependency_checker.py         # Verificador dependencias (80 líneas)
+│       ├── license_checker.py            # Verificador licencias (65 líneas)
+│       └── security_scanner.py           # Escáner seguridad (85 líneas)
+├── docs/                                 # DOCUMENTACIÓN COMPLETA
+│   ├── user_documentation/
+│   │   ├── getting_started/
+│   │   │   ├── installation.md           # Guía instalación
+│   │   │   ├── first_steps.md            # Primeros pasos
+│   │   │   ├── basic_concepts.md         # Conceptos básicos
+│   │   │   └── quick_start_guide.md      # Guía inicio rápido
+│   │   ├── user_guide/
+│   │   │   ├── creating_projects.md      # Crear proyectos
+│   │   │   ├── managing_nodes.md         # Gestionar nodos
+│   │   │   ├── organizing_content.md     # Organizar contenido
+│   │   │   ├── using_editor.md           # Usar editor
+│   │   │   ├── preview_modes.md          # Modos vista previa
+│   │   │   ├── import_export.md          # Importar/exportar
+│   │   │   ├── themes_customization.md   # Temas y personalización
+│   │   │   ├── keyboard_shortcuts.md     # Atajos teclado
+│   │   │   └── advanced_features.md      # Características avanzadas
+│   │   ├── tutorials/
+│   │   │   ├── tutorial_01_basic_project.md    # Tutorial proyecto básico
+│   │   │   ├── tutorial_02_content_organization.md # Organización contenido
+│   │   │   ├── tutorial_03_advanced_editing.md # Edición avanzada
+│   │   │   ├── tutorial_04_export_formats.md   # Formatos exportación
+│   │   │   └── tutorial_05_collaboration.md    # Colaboración
+│   │   ├── troubleshooting/
+│   │   │   ├── common_issues.md          # Problemas comunes
+│   │   │   ├── error_messages.md         # Mensajes error
+│   │   │   ├── performance_issues.md     # Problemas rendimiento
+│   │   │   ├── import_export_issues.md   # Problemas import/export
+│   │   │   └── platform_specific.md      # Específico plataforma
+│   │   └── faq/
+│   │       ├── general_faq.md            # FAQ general
+│   │       ├── technical_faq.md          # FAQ técnico
+│   │       ├── licensing_faq.md          # FAQ licencias
+│   │       └── support_faq.md            # FAQ soporte
+│   ├── developer_documentation/
+│   │   ├── architecture/
+│   │   │   ├── overview.md               # Visión general arquitectura
+│   │   │   ├── domain_layer.md           # Capa dominio
+│   │   │   ├── application_layer.md      # Capa aplicación
+│   │   │   ├── infrastructure_layer.md   # Capa infraestructura
+│   │   │   ├── presentation_layer.md     # Capa presentación
+│   │   │   ├── shared_layer.md           # Capa compartida
+│   │   │   ├── event_system.md           # Sistema eventos
+│   │   │   ├── plugin_architecture.md    # Arquitectura plugins
+│   │   │   └── design_patterns.md        # Patrones diseño
+│   │   ├── development_guide/
+│   │   │   ├── setup_development.md      # Configurar desarrollo
+│   │   │   ├── coding_standards.md       # Estándares código
+│   │   │   ├── testing_guidelines.md     # Guías testing
+│   │   │   ├── code_review_process.md    # Proceso revisión código
+│   │   │   ├── debugging_techniques.md   # Técnicas debugging
+│   │   │   ├── performance_optimization.md # Optimización rendimiento
+│   │   │   └── security_considerations.md # Consideraciones seguridad
+│   │   ├── plugin_development/
+│   │   │   ├── plugin_system_overview.md # Visión sistema plugins
+│   │   │   ├── creating_plugins.md       # Crear plugins
+│   │   │   ├── plugin_api_reference.md   # Referencia API plugins
+│   │   │   ├── plugin_templates.md       # Plantillas plugins
+│   │   │   ├── testing_plugins.md        # Testing plugins
+│   │   │   ├── publishing_plugins.md     # Publicar plugins
+│   │   │   └── plugin_best_practices.md  # Mejores prácticas plugins
+│   │   ├── api_reference/
+│   │   │   ├── domain_api/
+│   │   │   │   ├── node_api.md           # API nodos
+│   │   │   │   ├── tree_api.md           # API árboles
+│   │   │   │   ├── project_api.md        # API proyectos
+│   │   │   │   └── events_api.md         # API eventos
+│   │   │   ├── application_api/
+│   │   │   │   ├── commands_api.md       # API comandos
+│   │   │   │   ├── queries_api.md        # API consultas
+│   │   │   │   └── services_api.md       # API servicios
+│   │   │   ├── infrastructure_api/
+│   │   │   │   ├── persistence_api.md    # API persistencia
+│   │   │   │   ├── import_export_api.md  # API import/export
+│   │   │   │   └── external_services_api.md # API servicios externos
+│   │   │   └── presentation_api/
+│   │   │       ├── controllers_api.md    # API controladores
+│   │   │       ├── components_api.md     # API componentes
+│   │   │       └── dialogs_api.md        # API diálogos
+│   │   ├── contributing/
+│   │   │   ├── how_to_contribute.md      # Cómo contribuir
+│   │   │   ├── code_of_conduct.md        # Código conducta
+│   │   │   ├── pull_request_template.md  # Plantilla PR
+│   │   │   ├── issue_templates.md        # Plantillas issues
+│   │   │   └── community_guidelines.md   # Pautas comunidad
+│   │   └── deployment/
+│   │       ├── build_process.md          # Proceso build
+│   │       ├── packaging_guide.md        # Guía empaquetado
+│   │       ├── deployment_strategies.md  # Estrategias despliegue
+│   │       ├── environment_setup.md      # Configuración entornos
+│   │       └── monitoring_logging.md     # Monitoreo y logging
+│   ├── technical_specifications/
+│   │   ├── requirements/
+│   │   │   ├── functional_requirements.md    # Requisitos funcionales
+│   │   │   ├── non_functional_requirements.md # Requisitos no funcionales
+│   │   │   ├── system_requirements.md        # Requisitos sistema
+│   │   │   └── performance_requirements.md   # Requisitos rendimiento
+│   │   ├── design_documents/
+│   │   │   ├── high_level_design.md      # Diseño alto nivel
+│   │   │   ├── detailed_design.md        # Diseño detallado
+│   │   │   ├── database_design.md        # Diseño base datos
+│   │   │   ├── ui_ux_design.md           # Diseño UI/UX
+│   │   │   └── security_design.md        # Diseño seguridad
+│   │   ├── protocols/
+│   │   │   ├── file_format_spec.md       # Especificación formato archivo
+│   │   │   ├── import_export_protocol.md # Protocolo import/export
+│   │   │   ├── plugin_protocol.md        # Protocolo plugins
+│   │   │   └── api_protocol.md           # Protocolo API
+│   │   └── test_plans/
+│   │       ├── unit_test_plan.md         # Plan pruebas unitarias
+│   │       ├── integration_test_plan.md  # Plan pruebas integración
+│   │       ├── ui_test_plan.md           # Plan pruebas UI
+│   │       ├── performance_test_plan.md  # Plan pruebas rendimiento
+│   │       └── security_test_plan.md     # Plan pruebas seguridad
+│   ├── diagrams/
+│   │   ├── architecture_diagrams/
+│   │   │   ├── system_overview.png       # Diagrama visión sistema
+│   │   │   ├── layer_architecture.png    # Diagrama capas
+│   │   │   ├── component_diagram.png     # Diagrama componentes
+│   │   │   └── deployment_diagram.png    # Diagrama despliegue
+│   │   ├── sequence_diagrams/
+│   │   │   ├── create_project_sequence.png   # Secuencia crear proyecto
+│   │   │   ├── import_data_sequence.png      # Secuencia importar datos
+│   │   │   ├── export_data_sequence.png      # Secuencia exportar datos
+│   │   │   └── plugin_loading_sequence.png   # Secuencia carga plugins
+│   │   ├── class_diagrams/
+│   │   │   ├── domain_classes.png        # Clases dominio
+│   │   │   ├── application_classes.png   # Clases aplicación
+│   │   │   ├── infrastructure_classes.png # Clases infraestructura
+│   │   │   └── presentation_classes.png  # Clases presentación
+│   │   └── flow_diagrams/
+│   │       ├── user_workflow.png         # Flujo usuario
+│   │       ├── data_flow.png             # Flujo datos
+│   │       ├── error_handling_flow.png   # Flujo manejo errores
+│   │       └── plugin_communication_flow.png # Flujo comunicación plugins
+│   └── examples/
+│       ├── code_examples/
+│       │   ├── basic_usage_examples.py   # Ejemplos uso básico
+│       │   ├── advanced_usage_examples.py # Ejemplos uso avanzado
+│       │   ├── plugin_examples.py        # Ejemplos plugins
+│       │   └── customization_examples.py # Ejemplos personalización
+│       ├── configuration_examples/
+│       │   ├── basic_config.json         # Configuración básica
+│       │   ├── advanced_config.json      # Configuración avanzada
+│       │   ├── development_config.json   # Configuración desarrollo
+│       │   └── production_config.json    # Configuración producción
+│       └── project_templates/
+│           ├── software_project_template.wjp    # Plantilla proyecto software
+│           ├── research_project_template.wjp    # Plantilla proyecto investigación
+│           ├── documentation_template.wjp       # Plantilla documentación
+│           └── personal_notes_template.wjp      # Plantilla notas personales
+├── config/                               # CONFIGURACIÓN GLOBAL
+│   ├── application.json                  # Configuración aplicación principal
+│   ├── database.json                     # Configuración base datos
+│   ├── logging.json                      # Configuración logging
+│   ├── security.json                     # Configuración seguridad
+│   ├── performance.json                  # Configuración rendimiento
+│   ├── features.json                     # Configuración características
+│   ├── environments/
+│   │   ├── development.json              # Config desarrollo
+│   │   ├── testing.json                  # Config testing
+│   │   ├── staging.json                  # Config staging
+│   │   └── production.json               # Config producción
+│   ├── plugins/
+│   │   ├── enabled_plugins.json          # Plugins habilitados
+│   │   ├── plugin_settings.json          # Configuración plugins
+│   │   └── plugin_permissions.json       # Permisos plugins
+│   └── schemas/
+│       ├── config_schema.json            # Esquema configuración
+│       ├── project_schema.json           # Esquema proyecto
+│       ├── plugin_schema.json            # Esquema plugin
+│       └── theme_schema.json             # Esquema tema
+├── requirements/                         # GESTIÓN DEPENDENCIAS
+│   ├── requirements.txt                  # Dependencias principales
+│   ├── requirements-dev.txt              # Dependencias desarrollo
+│   ├── requirements-test.txt             # Dependencias testing
+│   ├── requirements-docs.txt             # Dependencias documentación
+│   ├── requirements-build.txt            # Dependencias build
+│   └── optional-requirements.txt         # Dependencias opcionales
+├── docker/                               # CONTENEDORES DOCKER
+│   ├── Dockerfile                        # Dockerfile principal
+│   ├── docker-compose.yml               # Compose principal
+│   ├── docker-compose.dev.yml           # Compose desarrollo
+│   ├── docker-compose.test.yml          # Compose testing
+│   ├── environments/
+│   │   ├── development.env               # Variables desarrollo
+│   │   ├── testing.env                   # Variables testing
+│   │   └── production.env                # Variables producción
+│   └── scripts/
+│       ├── entrypoint.sh                 # Script entrada
+│       ├── health-check.sh               # Script health check
+│       └── backup.sh                     # Script backup
+├── ci_cd/                                # INTEGRACIÓN CONTINUA
+│   ├── github_actions/
+│   │   ├── ci.yml                        # Pipeline CI
+│   │   ├── cd.yml                        # Pipeline CD
+│   │   ├── security-scan.yml             # Escaneo seguridad
+│   │   ├── dependency-check.yml          # Verificación dependencias
+│   │   └── release.yml                   # Pipeline release
+│   ├── jenkins/
+│   │   ├── Jenkinsfile                   # Pipeline Jenkins
+│   │   ├── build.groovy                  # Script build
+│   │   └── deploy.groovy                 # Script deploy
+│   ├── gitlab_ci/
+│   │   ├── .gitlab-ci.yml                # Pipeline GitLab
+│   │   ├── build-stage.yml               # Etapa build
+│   │   ├── test-stage.yml                # Etapa test
+│   │   └── deploy-stage.yml              # Etapa deploy
+│   └── scripts/
+│       ├── run-tests.sh                  # Ejecutar pruebas
+│       ├── build-app.sh                  # Construir app
+│       ├── deploy-app.sh                 # Desplegar app
+│       └── notify-slack.sh               # Notificar Slack
+├── deployment/                           # DESPLIEGUE
+│   ├── kubernetes/
+│   │   ├── namespace.yaml                # Namespace
+│   │   ├── deployment.yaml               # Deployment
+│   │   ├── service.yaml                  # Service
+│   │   ├── ingress.yaml                  # Ingress
+│   │   ├── configmap.yaml                # ConfigMap
+│   │   └── secret.yaml                   # Secret
+│   ├── terraform/
+│   │   ├── main.tf                       # Configuración principal
+│   │   ├── variables.tf                  # Variables
+│   │   ├── outputs.tf                    # Outputs
+│   │   └── modules/
+│   │       ├── vpc/
+│   │       ├── ecs/
+│   │       └── rds/
+│   ├── ansible/
+│   │   ├── playbook.yml                  # Playbook principal
+│   │   ├── inventory.yml                 # Inventario
+│   │   ├── roles/
+│   │   │   ├── common/
+│   │   │   ├── database/
+│   │   │   └── application/
+│   │   └── group_vars/
+│   │       ├── all.yml
+│   │       ├── dev.yml
+│   │       └── prod.yml
+│   └── helm/
+│       ├── Chart.yaml                    # Chart Helm
+│       ├── values.yaml                   # Valores por defecto
+│       ├── values-dev.yaml               # Valores desarrollo
+│       ├── values-prod.yaml              # Valores producción
+│       └── templates/
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           └── ingress.yaml
+├── monitoring/                           # MONITOREO
+│   ├── prometheus/
+│   │   ├── prometheus.yml                # Configuración Prometheus
+│   │   ├── alerts.yml                    # Alertas
+│   │   └── rules.yml                     # Reglas
+│   ├── grafana/
+│   │   ├── dashboards/
+│   │   │   ├── application_dashboard.json
+│   │   │   ├── infrastructure_dashboard.json
+│   │   │   └── business_metrics_dashboard.json
+│   │   └── provisioning/
+│   │       ├── datasources/
+│   │       └── dashboards/
+│   ├── elasticsearch/
+│   │   ├── elasticsearch.yml             # Configuración Elasticsearch
+│   │   ├── index-templates/
+│   │   └── index-lifecycle-policies/
+│   └── alerting/
+│       ├── alert_rules.yml               # Reglas alertas
+│       ├── notification_channels.yml     # Canales notificación
+│       └── escalation_policies.yml       # Políticas escalación
+├── security/                             # SEGURIDAD
+│   ├── policies/
+│   │   ├── security_policy.md            # Política seguridad
+│   │   ├── data_privacy_policy.md        # Política privacidad datos
+│   │   ├── access_control_policy.md      # Política control acceso
+│   │   └── incident_response_policy.md   # Política respuesta incidentes
+│   ├── certificates/
+│   │   ├── ca-cert.pem                   # Certificado CA
+│   │   ├── server-cert.pem               # Certificado servidor
+│   │   └── client-cert.pem               # Certificado cliente
+│   ├── secrets/
+│   │   ├── .env.example                  # Ejemplo variables entorno
+│   │   └── secret-template.yaml          # Plantilla secretos
+│   └── scanning/
+│       ├── security-scan-config.yml      # Config escaneo seguridad
+│       ├── dependency-check-config.xml   # Config verificación dependencias
+│       └── code-analysis-config.yml      # Config análisis código
+└── .github/                              # CONFIGURACIÓN GITHUB
+   ├── workflows/
+   │   ├── ci.yml                        # Workflow CI
+   │   ├── cd.yml                        # Workflow CD
+   │   ├── security.yml                  # Workflow seguridad
+   │   ├── release.yml                   # Workflow release
+   │   └── stale.yml                     # Workflow issues obsoletos
+   ├── ISSUE_TEMPLATE/
+   │   ├── bug_report.md                 # Plantilla reporte bug
+   │   ├── feature_request.md            # Plantilla solicitud feature
+   │   ├── question.md                   # Plantilla pregunta
+   │   └── performance_issue.md          # Plantilla problema rendimiento
+   ├── PULL_REQUEST_TEMPLATE.md          # Plantilla pull request
+   ├── CODE_OF_CONDUCT.md                # Código conducta
+   ├── CONTRIBUTING.md                   # Guía contribución
+   ├── SECURITY.md                       # Política seguridad
+   └── SUPPORT.md                        # Información soporte
+
+
+
+
+
+   
+
+treeapp_v4_pro/
+├── main.py                           # Punto de entrada ligero (solo inicialización)
+├── core/
+│   ├── state_management/             # Nueva gestión de estado
+│   │   ├── state_reducer.py          # Lógica de reducción
+│   │   ├── action_types.py           # Definición de acciones
+│   │   └── store.py                  # Almacén central
+│   ├── tree_services/                # Servicios de árbol
+│   │   ├── tree_operations.py        # CRUD y validaciones
+│   │   ├── tree_walker.py            # Recorridos
+│   │   └── tree_repair.py            # Corrección de inconsistencias
+    ├── models/
+    │    ├── node/                           # Directorio dedicado al modelo de nodo
+    │    │   ├── __init__.py                 # Exporta las interfaces principales
+    │    │   ├── base_node.py                # Clase abstracta NodeBase
+    │    │   ├── file_node.py                # Implementación para archivos
+    │    │   ├── folder_node.py              # Implementación para carpetas
+    │    │   ├── node_fields.py              # EditorFields, Metadata
+    │    │   ├── node_validators.py          # Validaciones de nombre, tipo, etc.
+    │    │   ├── node_cloning.py             # Lógica de clonación (simple, recursiva)
+    │    │   ├── node_operations.py          # CRUD básico (crear, borrar, mover)
+    │    │   └── node_serialization.py       # Serialización para guardado/exportación
+    │    │
+    │    ├── tree/                           # Modelos relacionados con árboles
+    │    │   ├── tree_manager.py             # Gestión de árboles (CRUD, validación)
+    │    │   ├── tree_walker.py              # Recorridos (BFS, DFS, etc.)
+    │    │   ├── tree_builder.py             # Construcción programática
+    │    │   └── tree_repair.py              # Corrección de inconsistencias
+    │    │
+    │    ├── project/                        # Gestión de proyectos
+    │    │   ├── project.py                  # Modelo principal de proyecto
+    │    │   ├── project_metadata.py         # Metadatos del proyecto
+    │    │   └── project_operations.py       # Operaciones multi-proyecto
+    │    │
+    │    ├── clipboard.py                    # Modelo de portapapeles estructurado
+    │    ├── selection.py                    # Gestión de selección de nodos
+    │    └── duplicator.py                   # Lógica de duplicación avanzada
+│   ├── event_bus.py                  # Comunicación entre componentes
+│   └── performance/                  # Optimizaciones
+│       ├── memory_manager.py         # Gestión de memoria
+│       └── render_cache.py           # Caché de previsualizaciones
+├── ui/
+│   ├── window_manager.py             # Nueva: gestión de ventana principal
+│   ├── theme_loader.py               # Nueva: carga de temas
+│   ├── panels/
+│   │   ├── tree_explorer/            # Explorador mejorado
+│   │   │   ├── tree_panel.py         # Panel principal
+│   │   │   ├── dnd_handler.py       # Drag & Drop avanzado
+│   │   │   └── multi_tree_manager.py # Gestión múltiples árboles
+│   │   ├── editor/
+│   │   │   ├── editor_panel.py       # Contenedor 4 campos
+│   │   │   ├── name_editor.py        # Campo nombre
+│   │   │   ├── markdown_editor.py    # Editor principal
+│   │   │   ├── notes_editor.py       # Notas técnicas
+│   │   │   └── code_editor.py        # Ventana código
+│   │   └── preview/
+│   │       ├── preview_manager.py    # Coordinador
+│   │       ├── virtual_renderer.py   # Renderizado eficiente
+│   │       └── renderers/            # Modos visualización
+│   │           ├── classic.py
+│   │           ├── ascii_full.py
+│   │           ├── ascii_folders.py
+│   │           └── columns.py
+│   ├── components/
+│   │   ├── plugin_loader.py          # Carga de plugins
+│   │   ├── metrics_tracker.py        # Seguimiento de métricas
+│   │   └── export_manager.py         # Nueva exportación unificada
+│   └── dialogs/
+│       ├── code_import_dialog.py     # Diálogo importación
+│       ├── export_dialog.py          # Diálogo exportación
+│       └── config_dialog.py          # Configuración
+├── services/
+│   ├── import_export/
+│   │   ├── format_detector.py        # Detección de formatos
+│   │   ├── tree_parser.py            # Parseo de estructuras
+│   │   └── template_exporter.py      # Exportación con plantillas
+│   ├── ai_integration/               # IA
+│   │   ├── context_builder.py
+│   │   └── prompt_templates.py
+│   └── app_creator.py                # Generación de proyectos
+├── config/
+│   ├── presets/                      # Configuraciones
+│   │   ├── preview_presets.json
+│   │   └── export_templates.json     # Nuevas plantillas
+│   ├── plugin_registry.py            # Registro de plugins
+│   └── hot_reloader.py               # Recarga en caliente
+├── plugins/                          # Arquitectura extensible
+│   ├── markdown_import.py            # Ejemplo plugin
+│   ├── custom_exporters.py
+│   └── ai_assistant.py
+├── utils/
+│   ├── text_processing.py            # Procesamiento texto
+│   ├── validation.py                 # Validadores
+│   ├── file_ops.py                   # Operaciones archivos
+│   └── tree_utils.py                 # Utilidades árbol
+├── resources/
+│   ├── icons/                        # Recursos visuales
+│   ├── themes/
+│   └── locales/
+├── tests/
+│   ├── stress_tests/                 # Nuevas pruebas carga
+│   │   ├── large_tree_test.py
+│   │   └── memory_usage_test.py
+│   ├── ui_tests/
+│   │   ├── test_dnd.py               # Pruebas DnD
+│   │   └── test_preview.py
+│   └── unit_tests/                   # Pruebas unitarias
+└── docs/
+    ├── quickstart/                   # Nueva documentación
+    │   ├── BASIC_USAGE.md
+    │   └── IMPORT_EXPORT_GUIDE.md
+    ├── config_examples/              # Ejemplos configuración
+    └── architecture/                 # Diagramas arquitectura
+
+
+treeapp_v4_pro/
+├── main.py                           # Solo bootstrap + splash
+├── core/
+│   ├── application.py                # App principal (orquestador)
+│   ├── event_system/
+│   │   ├── event_bus.py             # Sistema de eventos
+│   │   └── event_types.py           # Definiciones
+│   ├── state_management/
+│   │   ├── state_store.py           # Estado centralizado
+│   │   ├── reducers.py              # Lógica de cambios
+│   │   └── selectors.py             # Consultas al estado
+│   └── services/
+│       ├── project_service.py       # CRUD de proyectos
+│       ├── node_service.py          # CRUD de nodos
+│       └── import_service.py        # Importación de estructuras
+├── models/
+│   ├── node/
+│   │   ├── base_node.py             # Clase base abstracta
+│   │   ├── file_node.py             # Implementación archivo
+│   │   ├── folder_node.py           # Implementación carpeta
+│   │   └── node_factory.py          # Factory pattern
+│   ├── project/
+│   │   ├── project.py               # Modelo de proyecto
+│   │   └── project_metadata.py      # Metadatos
+│   └── tree/
+│       ├── tree_manager.py          # Gestión del árbol
+│       ├── tree_walker.py           # Recorridos
+│       └── tree_validator.py        # Validaciones
+├── ui/
+│   ├── window_manager.py            # Gestión de ventanas
+│   ├── theme/
+│   │   ├── theme_provider.py        # Proveedor de temas
+│   │   ├── theme_applier.py         # Aplicación de temas
+│   │   └── theme_definitions.py     # Definiciones
+│   ├── panels/
+│   │   ├── tree_explorer/
+│   │   │   ├── tree_panel.py        # UI del explorador
+│   │   │   ├── drag_drop_handler.py # Solo DnD
+│   │   │   └── tree_renderer.py     # Solo renderizado
+│   │   ├── editor/
+│   │   │   ├── editor_container.py  # Contenedor 4 campos
+│   │   │   ├── name_field.py        # Campo nombre
+│   │   │   ├── markdown_field.py    # Campo markdown
+│   │   │   ├── notes_field.py       # Campo notas
+│   │   │   └── code_field.py        # Campo código
+│   │   └── preview/
+│   │       ├── preview_container.py # Contenedor principal
+│   │       ├── mode_selector.py     # Selector de modos
+│   │       ├── config_panel.py      # Panel configuración
+│   │       └── renderers/
+│   │           ├── classic_renderer.py
+│   │           ├── ascii_renderer.py
+│   │           ├── folders_renderer.py
+│   │           └── columns_renderer.py
+│   └── components/
+│       ├── menu_bar.py              # Barra de menú
+│       ├── toolbar.py               # Barra de herramientas
+│       ├── status_bar.py            # Barra de estado
+│       └── dialogs/
+│           ├── preferences_dialog.py
+│           ├── import_dialog.py
+│           └── export_dialog.py
+├── export/
+│   ├── export_manager.py            # Coordinador de exportación
+│   ├── formatters/
+│   │   ├── txt_formatter.py         # Formato TXT
+│   │   ├── html_formatter.py        # Formato HTML
+│   │   └── json_formatter.py        # Formato JSON
+│   └── templates/
+│       ├── professional_template.py # Plantilla profesional
+│       └── simple_template.py       # Plantilla simple
+├── import/
+│   ├── import_manager.py            # Coordinador de importación
+│   ├── parsers/
+│   │   ├── tree_parser.py           # Parser de árboles
+│   │   ├── markdown_parser.py       # Parser de markdown
+│   │   └── filesystem_parser.py     # Parser de filesystem
+│   └── detectors/
+│       ├── format_detector.py       # Detección de formatos
+│       └── structure_detector.py    # Detección de estructuras
+├── utils/
+│   ├── validators.py                # Validadores
+│   ├── file_utils.py               # Utilidades de archivos
+│   ├── text_utils.py               # Utilidades de texto
+│   └── performance_utils.py         # Utilidades de rendimiento
+├── config/
+│   ├── config_manager.py           # Gestión de configuración
+│   ├── defaults.py                 # Valores por defecto
+│   └── presets/                    # Configuraciones predefinidas
+├── resources/
+│   ├── themes/                     # Archivos de temas
+│   ├── icons/                      # Iconos
+│   └── templates/                  # Plantillas
+└── tests/
+    ├── unit/                       # Pruebas unitarias
+    ├── integration/                # Pruebas de integración
+    └── ui/                         # Pruebas de interfaz

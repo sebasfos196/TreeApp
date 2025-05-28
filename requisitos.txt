@@ -1,3 +1,133 @@
+
+Algunos archivos del proyecto en https://github.com/sebasfos196/TreeApp
+
+
+ARBOL DE CARPETAS DE TREEAPP_V4_PRO REMANUFACTURADO 
+
+treeapp_v4_pro/
+├── main.py
+├── domain/
+│   ├── events/
+│   │   ├── event_bus.py              # 50 líneas
+│   │   ├── event_handler.py          # 30 líneas  
+│   │   ├── node_events.py            # 40 líneas
+│   │   ├── tree_events.py            # 40 líneas
+│   │   └── project_events.py         # 35 líneas
+│   ├── node/
+│   │   ├── node_entity.py            # 60 líneas
+│   │   ├── node_id.py                # 25 líneas
+│   │   ├── node_name.py              # 35 líneas
+│   │   ├── node_type.py              # 25 líneas
+│   │   ├── node_status.py            # 30 líneas
+│   │   ├── node_content.py           # 50 líneas
+│   │   └── node_factory.py           # 40 líneas
+│   ├── tree/
+│   │   ├── tree_entity.py            # 70 líneas
+│   │   ├── tree_walker.py            # 60 líneas
+│   │   ├── tree_validator.py         # 65 líneas
+│   │   └── tree_operations.py        # 70 líneas
+│   ├── project/
+│   │   ├── project_entity.py         # 50 líneas
+│   │   └── project_settings.py       # 35 líneas
+│   └── validation.py                 # 60 líneas
+├── application/
+│   ├── commands/
+│   │   ├── command_bus.py            # 40 líneas
+│   │   ├── node/
+│   │   │   ├── create_node_command.py # 35 líneas
+│   │   │   ├── update_node_command.py # 40 líneas
+│   │   │   └── delete_node_command.py # 30 líneas
+│   │   ├── tree/
+│   │   │   ├── import_tree_command.py # 45 líneas
+│   │   │   └── export_tree_command.py # 40 líneas
+│   │   └── project/
+│   │       ├── create_project_command.py # 35 líneas
+│   │       └── save_project_command.py   # 40 líneas
+│   ├── queries/
+│   │   ├── node_queries.py           # 50 líneas
+│   │   ├── tree_queries.py           # 45 líneas
+│   │   └── project_queries.py        # 35 líneas
+│   └── services/
+│       ├── import_service.py         # 70 líneas
+│       ├── export_service.py         # 65 líneas
+│       └── notification_service.py   # 40 líneas
+├── infrastructure/
+│   ├── persistence/
+│   │   ├── json_repository.py        # 70 líneas
+│   │   └── backup_manager.py         # 50 líneas
+│   ├── import_export/
+│   │   ├── parsers/
+│   │   │   ├── text_parser.py        # 80 líneas
+│   │   │   └── markdown_parser.py    # 60 líneas
+│   │   ├── exporters/
+│   │   │   ├── txt_exporter.py       # 70 líneas
+│   │   │   └── html_exporter.py      # 80 líneas
+│   │   └── format_detector.py        # 45 líneas
+│   └── file_system/
+│       ├── file_utils.py             # 50 líneas
+│       └── path_utils.py             # 35 líneas
+├── presentation/
+│   ├── main_window.py                # 60 líneas
+│   ├── controllers/
+│   │   ├── main_controller.py        # 70 líneas
+│   │   ├── tree_controller.py        # 80 líneas
+│   │   ├── editor_controller.py      # 75 líneas
+│   │   └── preview_controller.py     # 70 líneas
+│   ├── views/
+│   │   ├── panels/
+│   │   │   ├── tree_panel/
+│   │   │   │   ├── tree_view.py      # 80 líneas
+│   │   │   │   ├── drag_drop.py      # 60 líneas
+│   │   │   │   └── context_menu.py   # 50 líneas
+│   │   │   ├── editor_panel/
+│   │   │   │   ├── editor_container.py # 50 líneas
+│   │   │   │   ├── name_field.py     # 45 líneas
+│   │   │   │   ├── markdown_field.py # 70 líneas
+│   │   │   │   ├── notes_field.py    # 60 líneas
+│   │   │   │   └── code_field.py     # 80 líneas
+│   │   │   └── preview_panel/
+│   │   │       ├── preview_container.py # 50 líneas
+│   │   │       ├── mode_selector.py  # 40 líneas
+│   │   │       ├── config_panel.py   # 60 líneas
+│   │   │       └── renderers/
+│   │   │           ├── classic_renderer.py  # 70 líneas
+│   │   │           ├── ascii_renderer.py    # 80 líneas
+│   │   │           ├── folders_renderer.py  # 60 líneas
+│   │   │           └── columns_renderer.py  # 90 líneas
+│   │   └── widgets/
+│   │       ├── text_field.py         # 50 líneas
+│   │       ├── button.py             # 35 líneas
+│   │       ├── toolbar.py            # 60 líneas
+│   │       └── status_bar.py         # 45 líneas
+│   └── dialogs/
+│       ├── preferences_dialog.py     # 80 líneas
+│       ├── import_dialog.py          # 70 líneas
+│       ├── export_dialog.py          # 75 líneas
+│       ├── about_dialog.py           # 35 líneas
+│       └── shortcuts_dialog.py       # 40 líneas
+├── shared/
+│   ├── config/
+│   │   ├── config_manager.py         # 50 líneas
+│   │   ├── theme_manager.py          # 70 líneas
+│   │   └── settings.py               # 40 líneas
+│   ├── utils/
+│   │   ├── string_utils.py           # 40 líneas
+│   │   ├── validation_utils.py       # 50 líneas
+│   │   ├── id_generator.py           # 20 líneas
+│   │   └── date_utils.py             # 30 líneas
+│   └── constants/
+│       ├── app_constants.py          # 30 líneas
+│       ├── ui_constants.py           # 25 líneas
+│       └── file_constants.py         # 20 líneas
+├── resources/
+│   ├── themes/
+│   ├── icons/
+│   └── templates/
+└── config/
+    ├── app_config.json
+    └── user_preferences.json
+
+
 # 🌳 Funcionalidades del Explorador de Proyectos (Tree Explorer)
 
 Este documento detalla las capacidades esenciales y los criterios UX que debe cumplir el Explorador de Proyectos de TreeApp v4 Pro.  
@@ -590,128 +720,7 @@ Este árbol contempla una arquitectura granular y extensible para el desarrollo 
 Incluye separación entre lógica de visualización, configuraciones, exportadores y recursos de interfaz.
 # Árbol de Carpetas Sugerido — TreeApp v4 Pro (Versión Mejorada y Completa)
 Este árbol integra todas las mejoras propuestas, contemplando panel de editor avanzado (los 4 campos), panel de árbol mejorado (explorador con drag & drop), integración con EventBus/StateManager, importación de árbol desde código y separación granular UI/lógica/configuración/exportación.
-treeapp_v4_pro/
-├── main.py
-│
-├── core/
-│   ├── init.py
-│   ├── app_controller.py          # Coordinador general de la app
-│   ├── event_bus.py               # Bus de eventos global (PubSub)
-│   ├── state_manager.py           # Undo/Redo, selección, snapshot
-│   ├── performance_optimizer.py   # Cache y throttling inteligente
-│   └── models/
-│       ├── init.py
-│       ├── node.py                # ✅ Modelo principal de nodo
-│       ├── clipboard.py           # ✅ Sistema de portapapeles avanzado
-│       ├── selection.py           # Selección múltiple, rango, rama
-│       ├── duplicator.py          # Duplicación de nodos y ramas
-│       ├── validators.py          # Validación extendida
-│       ├── project.py             # Modelo de proyecto completo
-│       ├── tree_structure.py      # Estructura jerárquica y helpers
-│       └── editor_fields.py       # Modelo y lógica de los 4 campos (nombre, markdown, notas técnicas, código)                    
-│
-├── config/
-│   ├── init.py
-│   ├── config_manager.py
-│   ├── theme_manager.py
-│   ├── preview_configs/
-│   │   ├── classic_config.py
-│   │   ├── ascii_config.py
-│   │   ├── ascii_folders_config.py
-│   │   └── columns_config.py
-│   └── presets/
-│       ├── compact.json
-│       ├── standard.json
-│       ├── detailed.json
-│       └── user_presets.json
-│
-├── panels/
-│   ├── init.py
-│   ├── enhanced_tree_panel.py
-│   ├── enhanced_editor_panel.py   # Fase 2: los 4 campos
-│   ├── enhanced_preview_panel.py
-│   └── components/
-│       ├── tree_view.py
-│       ├── editor_fields.py
-│       ├── mode_selector.py
-│       ├── export_controls.py
-│       ├── stats_bar.py
-│       └── notifications.py
-│
-├── preview/
-│   ├── init.py
-│   ├── preview_engine.py
-│   ├── renderers/
-│   │   ├── base_renderer.py
-│   │   ├── classic_renderer.py
-│   │   ├── ascii_renderer.py
-│   │   ├── ascii_folders_renderer.py
-│   │   └── columns_renderer.py
-│   ├── configurators/
-│   │   ├── universal_config.py
-│   │   └── mode_configs.py
-│   └── filters.py
-│
-├── export/
-│   ├── init.py
-│   ├── export_manager.py
-│   ├── txt_exporter.py
-│   ├── wjp_exporter.py
-│   ├── formatter.py
-│   └── dialogs/
-│       ├── save_as_dialog.py
-│       └── export_options_dialog.py
-│
-├── tree_operations/
-│   ├── init.py
-│   ├── drag_drop_handler.py
-│   ├── tree_importer.py
-│   ├── node_operations.py
-│   ├── tree_builder.py
-│   └── history_manager.py
-│
-├── components/
-│   ├── init.py
-│   ├── menu_bar.py
-│   ├── toolbar.py
-│   ├── status_bar.py
-│   ├── layout_manager.py
-│   └── dialogs/
-│       ├── preferences_dialog.py
-│       ├── about_dialog.py
-│       ├── tree_import_dialog.py
-│       └── export_preview_dialog.py
-│
-├── utils/
-│   ├── init.py
-│   ├── file_utils.py
-│   ├── validators.py
-│   ├── text_processors.py
-│   ├── ui_helpers.py
-│   └── clipboard_manager.py   # Si se separa UI del modelo de portapapeles
-│
-├── resources/
-│   ├── icons/
-│   ├── themes/
-│   └── locales/
-│
-├── tests/
-│   ├── test_node_model.py
-│   ├── test_clipboard.py
-│   ├── test_editor_panel.py
-│   ├── test_preview.py
-│   ├── test_export.py
-│   └── test_tree_operations.py
-│
-└── docs/
-    ├── REQUERIMIENTOS.md
-    ├── ARBOL_CARPETAS_TREEAPP_V4_PRO.md
-    └── ejemplos_exportacion/
-        ├── ejemplo_clasico.txt
-        ├── ejemplo_ascii.txt
-        ├── ejemplo_ascii_folders.txt
-        ├── ejemplo_columnas.txt
-        └── ejemplo_profesional.txt
+
 
 
 ### Notas adicionales:
@@ -725,3 +734,25 @@ treeapp_v4_pro/
 
 
 cuando los archivos superen las 450 lineas de codigo son una señal para remanufacturar dividiendo responsabilidades
+
+
+✅ Botón "AppCreator" — Funcionalidad esperada
+🎯 Objetivo:
+Crear automáticamente:
+
+Una carpeta de proyecto en el sistema de archivos (ubicación seleccionada).
+
+Toda la estructura del árbol treeapp_v4_pro/ con archivos y carpetas reales.
+
+Archivos que tengan  # markdown definido en TreeView que sean visibles al ejecutar tree /F /A.
+
+🧱 Implementación sugerida:
+📍 1. Botón visual "AppCreator"
+Ubicado en la barra lateral del explorador.
+
+Al hacer clic:
+
+Abre un diálogo tkinter.filedialog.askdirectory() para elegir la carpeta destino.
+
+Ejecuta AppStructureCreator.create_structure(path_destino)
+
