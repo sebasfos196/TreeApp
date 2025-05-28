@@ -532,24 +532,30 @@ Incluye separación entre lógica de visualización, configuraciones, exportador
 # Árbol de Carpetas Sugerido — TreeApp v4 Pro (Versión Mejorada y Completa)
 Este árbol integra todas las mejoras propuestas, contemplando panel de editor avanzado (los 4 campos), panel de árbol mejorado (explorador con drag & drop), integración con EventBus/StateManager, importación de árbol desde código y separación granular UI/lógica/configuración/exportación.
 treeapp_v4_pro/
-├── main.py                        # Entry point
+├── main.py
 │
 ├── core/
-│   ├── __init__.py
-│   ├── app_controller.py          # Controlador principal de la app
-│   ├── event_bus.py               # Sistema de eventos global
-│   ├── state_manager.py           # Gestor de estado global (undo/redo, selección, etc.)
-│   ├── performance_optimizer.py   # Optimizador de rendimiento (caché, batch updates)
+│   ├── init.py
+│   ├── app_controller.py          # Coordinador general de la app
+│   ├── event_bus.py               # Bus de eventos global (PubSub)
+│   ├── state_manager.py           # Undo/Redo, selección, snapshot
+│   ├── performance_optimizer.py   # Cache y throttling inteligente
 │   └── models/
-│       ├── __init__.py
-│       ├── node.py                # Modelo de nodos (archivos, carpetas, atributos)
+│       ├── init.py
+│       ├── node.py                # ✅ Modelo principal de nodo
+│       ├── clipboard.py           # ✅ Sistema de portapapeles avanzado
+│       ├── selection.py           # Selección múltiple, rango, rama
+│       ├── duplicator.py          # Duplicación de nodos y ramas
+│       ├── validators.py          # Validación extendida
 │       ├── project.py             # Modelo de proyecto completo
 │       ├── tree_structure.py      # Estructura jerárquica y helpers
-│       └── editor_fields.py       # Modelo y lógica de los 4 campos (nombre, markdown, notas técnicas, código)
+│       └── editor_fields.py       # Modelo y lógica de los 4 campos (nombre, markdown, notas técnicas, código)                    
+│
 ├── config/
-│   ├── config_manager.py          # Gestor de configuración universal
-│   ├── theme_manager.py           # Gestor de temas y estilos
-│   ├── preview_configs/           # Configuraciones específicas de vista previa por modo
+│   ├── init.py
+│   ├── config_manager.py
+│   ├── theme_manager.py
+│   ├── preview_configs/
 │   │   ├── classic_config.py
 │   │   ├── ascii_config.py
 │   │   ├── ascii_folders_config.py
@@ -559,21 +565,24 @@ treeapp_v4_pro/
 │       ├── standard.json
 │       ├── detailed.json
 │       └── user_presets.json
-├── panels/                        # COMPONENTES PRINCIPALES DE UI
-│   ├── enhanced_tree_panel.py     # Explorador de archivos (drag & drop, multiselección, filtros)
-│   ├── enhanced_editor_panel.py   # Editor avanzado con los 4 campos
-│   ├── enhanced_preview_panel.py  # Panel de vista previa (los 4 modos)
+│
+├── panels/
+│   ├── init.py
+│   ├── enhanced_tree_panel.py
+│   ├── enhanced_editor_panel.py   # Fase 2: los 4 campos
+│   ├── enhanced_preview_panel.py
 │   └── components/
-│       ├── tree_view.py           # Componente visual del árbol
-│       ├── editor_fields.py       # Widget: Nombre, Markdown, Notas Técnicas, Código
-│       ├── mode_selector.py       # Selector de modo de preview
-│       ├── export_controls.py     # Botonera de exportación y preview
-│       ├── stats_bar.py           # Barra de estadísticas/resúmenes
-│       └── notifications.py       # Notificaciones, tooltips
-├── preview/                       # SISTEMA DE VISTA PREVIA (lógica y renderizado)
-│   ├── preview_engine.py          # Motor principal de preview, manager de modos
+│       ├── tree_view.py
+│       ├── editor_fields.py
+│       ├── mode_selector.py
+│       ├── export_controls.py
+│       ├── stats_bar.py
+│       └── notifications.py
+│
+├── preview/
+│   ├── init.py
+│   ├── preview_engine.py
 │   ├── renderers/
-│   │   ├── __init__.py
 │   │   ├── base_renderer.py
 │   │   ├── classic_renderer.py
 │   │   ├── ascii_renderer.py
@@ -582,58 +591,60 @@ treeapp_v4_pro/
 │   ├── configurators/
 │   │   ├── universal_config.py
 │   │   └── mode_configs.py
-│   └── filters.py                 # Filtros, ordenación, búsqueda, profundidad máxima
-├── export/                        # SISTEMA DE EXPORTACIÓN PROFESIONAL
-│   ├── export_manager.py          # Orquestador de exportaciones
-│   ├── txt_exporter.py            # Exportador TXT (todos los modos, formato profesional)
-│   ├── wjp_exporter.py            # Exportador/importador de proyecto propietario
-│   ├── formatter.py               # Encabezados, bloques, estadísticas
+│   └── filters.py
+│
+├── export/
+│   ├── init.py
+│   ├── export_manager.py
+│   ├── txt_exporter.py
+│   ├── wjp_exporter.py
+│   ├── formatter.py
 │   └── dialogs/
 │       ├── save_as_dialog.py
 │       └── export_options_dialog.py
-├── tree_operations/               # OPERACIONES AVANZADAS SOBRE EL ÁRBOL
-│   ├── drag_drop_handler.py       # Drag & drop avanzado, multiselección, hover feedback
-│   ├── tree_importer.py           # Importar estructura desde código/texto (ventana de código)
-│   ├── node_operations.py         # CRUD, mover, copiar, duplicar nodos
-│   ├── tree_builder.py            # Construcción y validación de árbol
-│   └── history_manager.py         # Undo/redo avanzado, snapshotting
-├── components/                    # COMPONENTES DE UI COMPARTIDOS
-│   ├── menu_bar.py                # Barra de menú principal
-│   ├── toolbar.py                 # Barra de herramientas rápidas
-│   ├── status_bar.py              # Barra de estado general
-│   ├── layout_manager.py          # Gestor de layout y organización de paneles
+│
+├── tree_operations/
+│   ├── init.py
+│   ├── drag_drop_handler.py
+│   ├── tree_importer.py
+│   ├── node_operations.py
+│   ├── tree_builder.py
+│   └── history_manager.py
+│
+├── components/
+│   ├── init.py
+│   ├── menu_bar.py
+│   ├── toolbar.py
+│   ├── status_bar.py
+│   ├── layout_manager.py
+│   └── dialogs/
 │       ├── preferences_dialog.py
 │       ├── about_dialog.py
-│       ├── tree_import_dialog.py  # Diálogo para importar árbol desde código
+│       ├── tree_import_dialog.py
 │       └── export_preview_dialog.py
-├── utils/                         # UTILIDADES, HELPERS Y VALIDADORES
+│
+├── utils/
+│   ├── init.py
 │   ├── file_utils.py
 │   ├── validators.py
 │   ├── text_processors.py
 │   ├── ui_helpers.py
-│   └── clipboard_manager.py       # Copiado, pegado, portapapeles avanzado
-├── resources/                     # RECURSOS ESTÁTICOS
+│   └── clipboard_manager.py   # Si se separa UI del modelo de portapapeles
+│
+├── resources/
 │   ├── icons/
-│   │   ├── folder.png
-│   │   ├── file.png
-│   │   ├── status_complete.png
-│   │   ├── status_pending.png
-│   │   └── status_error.png
 │   ├── themes/
-│   │   ├── light.json
-│   │   └── dark.json
 │   └── locales/
-│       ├── es.json
-│       └── en.json
-├── tests/                         # PRUEBAS UNITARIAS Y E2E
-│   ├── test_preview_system.py
-│   ├── test_export_system.py
-│   ├── test_tree_operations.py
+│
+├── tests/
+│   ├── test_node_model.py
+│   ├── test_clipboard.py
 │   ├── test_editor_panel.py
-│   ├── test_event_bus.py
-│   ├── test_state_manager.py
-│   └── test_importers.py
-└── docs/                          # DOCUMENTACIÓN Y EJEMPLOS
+│   ├── test_preview.py
+│   ├── test_export.py
+│   └── test_tree_operations.py
+│
+└── docs/
     ├── REQUERIMIENTOS.md
     ├── ARBOL_CARPETAS_TREEAPP_V4_PRO.md
     └── ejemplos_exportacion/
