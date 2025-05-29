@@ -1,12 +1,17 @@
 # presentation/views/panels/preview_panel/preview_container.py
 """
-Panel de Vista Previa con 4 modos de visualización del árbol.
+Contenedor principal del panel de vista previa - refactorizado con renderers separados.
 """
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from datetime import datetime
-from domain.node.node_entity import Node
+
+# Imports de renderers especializados
+from .renderers.classic_renderer import ClassicRenderer
+from .renderers.ascii_renderer import AsciiRenderer
+from .renderers.folders_renderer import FoldersRenderer
+from .renderers.columns_renderer import ColumnsRenderer
 
 
 class PreviewModes:
@@ -18,7 +23,7 @@ class PreviewModes:
 
 
 class PreviewContainer:
-    """Contenedor principal del panel de vista previa."""
+    """Contenedor principal del panel de vista previa con renderers especializados."""
     
     def __init__(self, parent_frame, node_repository):
         self.parent_frame = parent_frame
@@ -26,7 +31,22 @@ class PreviewContainer:
         self.current_mode = PreviewModes.CLASSIC
         
         # Configuraciones por modo
-        self.config = {
+        self.config = self._initialize_default_config()
+        
+        # Renderers especializados
+        self.renderers = {
+            PreviewModes.CLASSIC: ClassicRenderer(node_repository),
+            PreviewModes.ASCII_FULL: AsciiRenderer(node_repository),
+            PreviewModes.ASCII_FOLDERS: FoldersRenderer(node_repository),
+            PreviewModes.COLUMNS: ColumnsRenderer(node_repository)
+        }
+        
+        self._setup_ui()
+        self._refresh_preview()
+    
+    def _initialize_default_config(self) -> Dict[str, Dict]:
+        """Inicializar configuraciones por defecto para cada modo."""
+        return {
             PreviewModes.CLASSIC: {
                 'indent_spaces': 4,
                 'show_icons': True,
@@ -46,7 +66,7 @@ class PreviewContainer:
             PreviewModes.ASCII_FOLDERS: {
                 'show_icons': True,
                 'show_file_count': True,
-                'show_status_summary': True,
+                'markdown_max_length': 40,
                 'max_depth': 10
             },
             PreviewModes.COLUMNS: {
@@ -58,9 +78,6 @@ class PreviewContainer:
                 'markdown_max_length': 60
             }
         }
-        
-        self._setup_ui()
-        self._refresh_preview()
     
     def _setup_ui(self):
         """Configurar interfaz del panel de vista previa."""
@@ -68,16 +85,10 @@ class PreviewContainer:
         self.main_frame = tk.Frame(self.parent_frame, bg='#f8f8f8')
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
         
-        # Header con título y controles
+        # Componentes UI
         self._setup_header()
-        
-        # Área de vista previa principal
         self._setup_preview_area()
-        
-        # Panel de configuración (inicialmente oculto)
         self._setup_config_panel()
-        
-        # Botones de exportación
         self._setup_export_buttons()
     
     def _setup_header(self):
@@ -95,8 +106,12 @@ class PreviewContainer:
         )
         title_label.pack(side=tk.LEFT)
         
-        # Selector de modo
-        mode_frame = tk.Frame(header_frame, bg='#f8f8f8')
+        # Controles de modo
+        self._setup_mode_controls(header_frame)
+    
+    def _setup_mode_controls(self, parent):
+        """Configurar controles de selección de modo."""
+        mode_frame = tk.Frame(parent, bg='#f8f8f8')
         mode_frame.pack(side=tk.RIGHT)
         
         tk.Label(
@@ -126,17 +141,17 @@ class PreviewContainer:
             bg='#3498db',
             fg='white',
             width=3,
-            relief=tk.FLAT
+            relief=tk.FLAT,
+            cursor='hand2'
         )
         self.config_btn.pack(side=tk.LEFT)
     
     def _setup_preview_area(self):
         """Configurar área principal de vista previa."""
-        # Frame para vista previa con scroll
         preview_frame = tk.Frame(self.main_frame, bg='#ffffff', relief=tk.SUNKEN, bd=1)
         preview_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
         
-        # Text widget para mostrar la vista previa - HABILITADO PARA SELECCIÓN
+        # Text widget para mostrar la vista previa - HABILITADO PARA COPIA
         text_frame = tk.Frame(preview_frame)
         text_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -146,14 +161,14 @@ class PreviewContainer:
             bg='#ffffff',
             fg='#2c3e50',
             wrap=tk.NONE,
-            state=tk.NORMAL,  # CAMBIO: Permitir selección y copia
+            state=tk.NORMAL,  # Habilitado para selección
             relief=tk.FLAT,
             bd=5,
             padx=10,
             pady=10,
             selectbackground='#3498db',
             selectforeground='white',
-            cursor='text'  # Cursor de texto para indicar que es seleccionable
+            cursor='text'
         )
         
         # Scrollbars
@@ -167,25 +182,31 @@ class PreviewContainer:
         v_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         h_scroll.pack(side=tk.BOTTOM, fill=tk.X)
         
-        # Habilitar Ctrl+A para seleccionar todo
+        # Eventos y menú contextual
+        self._setup_preview_events()
+    
+    def _setup_preview_events(self):
+        """Configurar eventos de la vista previa."""
+        # Ctrl+A para seleccionar todo
         self.preview_text.bind('<Control-a>', self._select_all_text)
-        # Habilitar Ctrl+C (ya funciona por defecto)
         
-        # Menú contextual para copiar
-        self._setup_preview_context_menu()
-    
-    def _select_all_text(self, event=None):
-        """Seleccionar todo el texto en la vista previa."""
-        self.preview_text.tag_add(tk.SEL, "1.0", tk.END)
-        return 'break'  # Prevenir comportamiento por defecto
-    
-    def _setup_preview_context_menu(self):
-        """Configurar menú contextual para la vista previa."""
+        # Menú contextual
         self.preview_context_menu = tk.Menu(self.preview_text, tearoff=0)
-        self.preview_context_menu.add_command(label="📋 Copiar", command=self._copy_selected_text, accelerator="Ctrl+C")
-        self.preview_context_menu.add_command(label="📋 Copiar Todo", command=self._copy_all_text, accelerator="Ctrl+A")
+        self.preview_context_menu.add_command(
+            label="📋 Copiar", 
+            command=self._copy_selected_text, 
+            accelerator="Ctrl+C"
+        )
+        self.preview_context_menu.add_command(
+            label="📋 Copiar Todo", 
+            command=self._copy_all_text, 
+            accelerator="Ctrl+A"
+        )
         self.preview_context_menu.add_separator()
-        self.preview_context_menu.add_command(label="🔄 Refrescar", command=self._refresh_preview)
+        self.preview_context_menu.add_command(
+            label="🔄 Refrescar", 
+            command=self._refresh_preview
+        )
         
         def show_context_menu(event):
             try:
@@ -195,32 +216,12 @@ class PreviewContainer:
         
         self.preview_text.bind('<Button-3>', show_context_menu)
     
-    def _copy_selected_text(self):
-        """Copiar texto seleccionado."""
-        try:
-            selected = self.preview_text.get(tk.SEL_FIRST, tk.SEL_LAST)
-            if selected:
-                self.preview_text.clipboard_clear()
-                self.preview_text.clipboard_append(selected)
-                print("📋 Texto seleccionado copiado")
-        except tk.TclError:
-            # No hay selección
-            self._copy_all_text()
-    
-    def _copy_all_text(self):
-        """Copiar todo el texto de la vista previa."""
-        all_text = self.preview_text.get('1.0', tk.END).strip()
-        if all_text:
-            self.preview_text.clipboard_clear()
-            self.preview_text.clipboard_append(all_text)
-            print("📋 Todo el texto copiado")
-    
     def _setup_config_panel(self):
-        """Configurar panel de configuración (colapsable)."""
+        """Configurar panel de configuración (inicialmente oculto)."""
         self.config_frame = tk.Frame(self.main_frame, bg='#ecf0f1', relief=tk.RAISED, bd=1)
-        self.config_visible = False  # Inicialmente oculto
+        self.config_visible = False
         
-        # Título del panel de configuración
+        # Título del panel
         config_header = tk.Frame(self.config_frame, bg='#bdc3c7')
         config_header.pack(fill=tk.X)
         
@@ -232,7 +233,7 @@ class PreviewContainer:
             fg='#2c3e50'
         ).pack(pady=5)
         
-        # Contenido de configuración (se llenará dinámicamente)
+        # Contenido dinámico
         self.config_content = tk.Frame(self.config_frame, bg='#ecf0f1')
         self.config_content.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
     
@@ -251,7 +252,8 @@ class PreviewContainer:
             font=('Arial', 10, 'bold'),
             relief=tk.FLAT,
             padx=15,
-            pady=5
+            pady=5,
+            cursor='hand2'
         ).pack(side=tk.LEFT, padx=(0, 10))
         
         # Botón refrescar
@@ -264,8 +266,11 @@ class PreviewContainer:
             font=('Arial', 10, 'bold'),
             relief=tk.FLAT,
             padx=15,
-            pady=5
+            pady=5,
+            cursor='hand2'
         ).pack(side=tk.RIGHT)
+    
+    # ==================== EVENTOS PRINCIPALES ====================
     
     def _on_mode_change(self, event=None):
         """Manejar cambio de modo."""
@@ -281,19 +286,21 @@ class PreviewContainer:
             self.config_visible = False
             self.config_btn.config(text="⚙️")
         else:
-            self.config_frame.pack(fill=tk.X, padx=5, pady=(0, 5), before=self.preview_text.master)
+            self.config_frame.pack(fill=tk.X, padx=5, pady=(0, 5), 
+                                 before=self.preview_text.master.master)
             self.config_visible = True
             self.config_btn.config(text="❌")
             self._update_config_panel()
     
     def _update_config_panel(self):
-        """Actualizar contenido del panel de configuración según el modo."""
+        """Actualizar contenido del panel de configuración."""
         # Limpiar contenido anterior
         for widget in self.config_content.winfo_children():
             widget.destroy()
         
         current_config = self.config[self.current_mode]
         
+        # Crear controles específicos por modo
         if self.current_mode == PreviewModes.CLASSIC:
             self._create_classic_config(current_config)
         elif self.current_mode == PreviewModes.ASCII_FULL:
@@ -303,33 +310,17 @@ class PreviewContainer:
         elif self.current_mode == PreviewModes.COLUMNS:
             self._create_columns_config(current_config)
     
+    # ==================== CONFIGURACIONES POR MODO ====================
+    
     def _create_classic_config(self, config):
         """Crear configuración para modo Clásico."""
-        # Espacios de indentación
-        indent_frame = tk.Frame(self.config_content, bg='#ecf0f1')
-        indent_frame.pack(fill=tk.X, pady=2)
-        
-        tk.Label(indent_frame, text="Espacios de indentación:", bg='#ecf0f1').pack(side=tk.LEFT)
-        indent_var = tk.IntVar(value=config['indent_spaces'])
-        indent_spin = tk.Spinbox(indent_frame, from_=1, to=8, textvariable=indent_var, width=5)
-        indent_spin.pack(side=tk.RIGHT)
-        indent_var.trace('w', lambda *args: self._update_config('indent_spaces', indent_var.get()))
-        
-        # Checkboxes
-        self._create_checkbox_config(config, 'show_icons', "Mostrar iconos (📁📄)")
-        self._create_checkbox_config(config, 'show_status', "Mostrar estados (✅❌⬜)")
+        self._create_spinbox_config(config, 'indent_spaces', "Espacios de indentación:", 1, 8)
+        self._create_checkbox_config(config, 'show_icons', "Mostrar iconos")
+        self._create_checkbox_config(config, 'show_status', "Mostrar estados")
         self._create_checkbox_config(config, 'show_markdown', "Mostrar markdown")
         
-        # Longitud máxima de markdown
-        if config['show_markdown']:
-            md_frame = tk.Frame(self.config_content, bg='#ecf0f1')
-            md_frame.pack(fill=tk.X, pady=2)
-            
-            tk.Label(md_frame, text="Longitud máx. markdown:", bg='#ecf0f1').pack(side=tk.LEFT)
-            md_var = tk.IntVar(value=config['markdown_max_length'])
-            md_spin = tk.Spinbox(md_frame, from_=20, to=100, textvariable=md_var, width=5)
-            md_spin.pack(side=tk.RIGHT)
-            md_var.trace('w', lambda *args: self._update_config('markdown_max_length', md_var.get()))
+        if config.get('show_markdown'):
+            self._create_spinbox_config(config, 'markdown_max_length', "Longitud máx. markdown:", 20, 100)
     
     def _create_ascii_full_config(self, config):
         """Crear configuración para modo ASCII Completo."""
@@ -342,26 +333,25 @@ class PreviewContainer:
         """Crear configuración para modo ASCII Solo Carpetas."""
         self._create_checkbox_config(config, 'show_icons', "Mostrar iconos")
         self._create_checkbox_config(config, 'show_file_count', "Mostrar contador de archivos")
-        self._create_checkbox_config(config, 'show_status_summary', "Mostrar resumen de estados")
     
     def _create_columns_config(self, config):
         """Crear configuración para modo Columnas."""
-        # Anchos de columnas
-        for col_name, label in [('col_path_width', 'Ancho Ruta:'), 
-                               ('col_status_width', 'Ancho Estado:'),
-                               ('col_markdown_width', 'Ancho Markdown:')]:
-            col_frame = tk.Frame(self.config_content, bg='#ecf0f1')
-            col_frame.pack(fill=tk.X, pady=2)
-            
-            tk.Label(col_frame, text=label, bg='#ecf0f1').pack(side=tk.LEFT)
-            col_var = tk.IntVar(value=config[col_name])
-            col_spin = tk.Spinbox(col_frame, from_=50, to=500, textvariable=col_var, width=5)
-            col_spin.pack(side=tk.RIGHT)
-            col_var.trace('w', lambda *args, name=col_name, var=col_var: self._update_config(name, var.get()))
-        
-        # Checkboxes
+        self._create_spinbox_config(config, 'col_path_width', "Ancho columna Ruta:", 50, 500)
+        self._create_spinbox_config(config, 'col_status_width', "Ancho columna Estado:", 50, 200)
+        self._create_spinbox_config(config, 'col_markdown_width', "Ancho columna Markdown:", 50, 500)
         self._create_checkbox_config(config, 'show_headers', "Mostrar encabezados")
-        self._create_checkbox_config(config, 'alternate_colors', "Colores alternados")
+    
+    def _create_spinbox_config(self, config, key, label, min_val, max_val):
+        """Crear control Spinbox para configuración."""
+        frame = tk.Frame(self.config_content, bg='#ecf0f1')
+        frame.pack(fill=tk.X, pady=2)
+        
+        tk.Label(frame, text=label, bg='#ecf0f1').pack(side=tk.LEFT)
+        
+        var = tk.IntVar(value=config[key])
+        spinbox = tk.Spinbox(frame, from_=min_val, to=max_val, textvariable=var, width=5)
+        spinbox.pack(side=tk.RIGHT)
+        var.trace('w', lambda *args: self._update_config(key, var.get()))
     
     def _create_checkbox_config(self, config, key, label):
         """Crear checkbox de configuración."""
@@ -380,8 +370,10 @@ class PreviewContainer:
         self.config[self.current_mode][key] = value
         self._refresh_preview()
     
+    # ==================== RENDERIZADO ====================
+    
     def _refresh_preview(self):
-        """Refrescar la vista previa."""
+        """Refrescar la vista previa usando renderer apropiado."""
         try:
             # Obtener nodos del repositorio
             root_nodes = self.node_repository.find_roots()
@@ -389,329 +381,59 @@ class PreviewContainer:
             if not root_nodes:
                 content = "📂 Proyecto vacío\n\n¡Crea tu primera carpeta o archivo!"
             else:
-                # Generar contenido según el modo
-                if self.current_mode == PreviewModes.CLASSIC:
-                    content = self._generate_classic_view(root_nodes)
-                elif self.current_mode == PreviewModes.ASCII_FULL:
-                    content = self._generate_ascii_full_view(root_nodes)
-                elif self.current_mode == PreviewModes.ASCII_FOLDERS:
-                    content = self._generate_ascii_folders_view(root_nodes)
-                elif self.current_mode == PreviewModes.COLUMNS:
-                    content = self._generate_columns_view(root_nodes)
+                # Usar renderer especializado
+                renderer = self.renderers.get(self.current_mode)
+                if renderer:
+                    current_config = self.config[self.current_mode]
+                    content = renderer.render(root_nodes, current_config)
                 else:
-                    content = "❌ Modo no implementado"
+                    content = "❌ Renderer no encontrado"
             
-            # Actualizar texto
+            # Actualizar texto (mantener seleccionable)
             self.preview_text.config(state=tk.NORMAL)
             self.preview_text.delete('1.0', tk.END)
             self.preview_text.insert('1.0', content)
-            self.preview_text.config(state=tk.DISABLED)
             
         except Exception as e:
+            error_msg = f"❌ Error generando vista previa:\n{str(e)}\n\nDetalle: {type(e).__name__}"
             self.preview_text.config(state=tk.NORMAL)
             self.preview_text.delete('1.0', tk.END)
-            self.preview_text.insert('1.0', f"❌ Error generando vista previa:\n{str(e)}")
-            self.preview_text.config(state=tk.DISABLED)
+            self.preview_text.insert('1.0', error_msg)
             print(f"❌ Error en vista previa: {e}")
+            import traceback
+            traceback.print_exc()
     
-    def _generate_classic_view(self, root_nodes):
-        """Generar vista clásica."""
-        config = self.config[PreviewModes.CLASSIC]
-        lines = []
-        
-        for root in root_nodes:
-            self._generate_classic_node(root, lines, 0, config)
-        
-        return '\n'.join(lines) if lines else "📂 Sin contenido"
+    # ==================== FUNCIONES DE COPIA ====================
     
-    def _generate_classic_node(self, node, lines, depth, config):
-        """Generar línea para un nodo en vista clásica."""
-        if depth > config['max_depth']:
-            return
-        
-        # Indentación
-        indent = ' ' * (depth * config['indent_spaces'])
-        
-        # Icono
-        icon = ""
-        if config['show_icons']:
-            icon = "📁 " if node.is_folder() else "📄 "
-        
-        # Estado
-        status = ""
-        if config['show_status'] and node.status.value:
-            status = f" {node.status.value}"
-        
-        # Markdown
-        markdown = ""
-        if config['show_markdown'] and node.markdown_short:
-            md_text = node.markdown_short.strip()
-            if len(md_text) > config['markdown_max_length']:
-                md_text = md_text[:config['markdown_max_length']] + "..."
-            markdown = f" - {md_text}"
-        
-        # Línea completa
-        line = f"{indent}{icon}{node.name}{status}{markdown}"
-        lines.append(line)
-        
-        # Hijos recursivos
-        if node.is_folder():
-            children = self.node_repository.find_children(node.node_id)
-            for child in children:
-                self._generate_classic_node(child, lines, depth + 1, config)
+    def _select_all_text(self, event=None):
+        """Seleccionar todo el texto."""
+        self.preview_text.tag_add(tk.SEL, "1.0", tk.END)
+        return 'break'
     
-    def _generate_ascii_full_view(self, root_nodes):
-        """Generar vista ASCII completa."""
-        config = self.config[PreviewModes.ASCII_FULL]
-        lines = []
-        
-        for i, root in enumerate(root_nodes):
-            is_last_root = (i == len(root_nodes) - 1)
-            self._generate_ascii_node(root, lines, "", is_last_root, config)
-        
-        return '\n'.join(lines) if lines else "📂 Sin contenido"
+    def _copy_selected_text(self):
+        """Copiar texto seleccionado."""
+        try:
+            selected = self.preview_text.get(tk.SEL_FIRST, tk.SEL_LAST)
+            if selected:
+                self.preview_text.clipboard_clear()
+                self.preview_text.clipboard_append(selected)
+                print("📋 Texto seleccionado copiado")
+        except tk.TclError:
+            self._copy_all_text()
     
-    def _generate_ascii_node(self, node, lines, prefix, is_last, config):
-        """Generar línea ASCII para un nodo."""
-        # Caracteres ASCII
-        if config['use_unicode']:
-            branch = "├── " if not is_last else "└── "
-            extend = "│   " if not is_last else "    "
-        else:
-            branch = "|-- " if not is_last else "`-- "
-            extend = "|   " if not is_last else "    "
-        
-        # Icono
-        icon = ""
-        if config['show_icons']:
-            icon = "📁 " if node.is_folder() else "📄 "
-        
-        # Estado
-        status = ""
-        if config['show_status'] and node.status.value:
-            status = f" {node.status.value}"
-        
-        # Markdown
-        markdown = ""
-        if config['show_markdown'] and node.markdown_short:
-            md_text = node.markdown_short.strip()
-            if len(md_text) > config['markdown_max_length']:
-                md_text = md_text[:config['markdown_max_length']] + "..."
-            markdown = f" - {md_text}"
-        
-        # Línea
-        line = f"{prefix}{branch}{icon}{node.name}{status}{markdown}"
-        lines.append(line)
-        
-        # Hijos
-        if node.is_folder():
-            children = self.node_repository.find_children(node.node_id)
-            for i, child in enumerate(children):
-                is_last_child = (i == len(children) - 1)
-                self._generate_ascii_node(child, lines, prefix + extend, is_last_child, config)
+    def _copy_all_text(self):
+        """Copiar todo el texto."""
+        all_text = self.preview_text.get('1.0', tk.END).strip()
+        if all_text:
+            self.preview_text.clipboard_clear()
+            self.preview_text.clipboard_append(all_text)
+            print("📋 Todo el texto copiado")
     
-    def _generate_ascii_folders_view(self, root_nodes):
-        """Generar vista ASCII solo carpetas con markdown y estado."""
-        config = self.config[PreviewModes.ASCII_FOLDERS]
-        lines = []
-        
-        for i, root in enumerate(root_nodes):
-            is_last_root = (i == len(root_nodes) - 1)
-            self._generate_ascii_folders_node(root, lines, "", is_last_root, config)
-        
-        return '\n'.join(lines) if lines else "📂 Sin contenido"
-    
-    def _generate_ascii_folders_node(self, node, lines, prefix, is_last, config):
-        """Generar línea ASCII solo para carpetas con markdown y estado."""
-        if node.is_folder():
-            # Contar archivos en esta carpeta
-            children = self.node_repository.find_children(node.node_id)
-            file_count = len([child for child in children if child.is_file()])
-            
-            # Caracteres ASCII
-            branch = "├── " if not is_last else "└── "
-            extend = "│   " if not is_last else "    "
-            
-            # Icono
-            icon = "📁 " if config['show_icons'] else ""
-            
-            # Contador de archivos
-            count_info = ""
-            if config['show_file_count'] and file_count > 0:
-                count_info = f" ({file_count} archivos)"
-            
-            # Estado de la carpeta
-            status_info = ""
-            if node.status.value:
-                status_info = f" {node.status.value}"
-            
-            # Markdown de la carpeta
-            markdown_info = ""
-            if node.markdown_short:
-                md_text = node.markdown_short.strip()
-                if len(md_text) > 40:
-                    md_text = md_text[:40] + "..."
-                markdown_info = f" - {md_text}"
-            
-            # Línea completa
-            line = f"{prefix}{branch}{icon}{node.name}{count_info}{status_info}{markdown_info}"
-            lines.append(line)
-            
-            # Hijos (solo carpetas)
-            folders = [child for child in children if child.is_folder()]
-            for i, child in enumerate(folders):
-                is_last_child = (i == len(folders) - 1)
-                self._generate_ascii_folders_node(child, lines, prefix + extend, is_last_child, config)
-    
-    def _generate_columns_view(self, root_nodes):
-        """Generar vista en columnas con alineación perfecta."""
-        config = self.config[PreviewModes.COLUMNS]
-        lines = []
-        
-        # Recopilar todos los nodos para calcular anchos óptimos
-        all_nodes_data = []
-        for root in root_nodes:
-            self._collect_nodes_for_columns(root, "", all_nodes_data)
-        
-        if not all_nodes_data:
-            return "📂 Sin contenido"
-        
-        # Calcular anchos óptimos basados en el contenido
-        max_path_len = max(len(data['path']) for data in all_nodes_data)
-        max_status_len = max(len(data['status']) for data in all_nodes_data)
-        max_markdown_len = max(len(data['markdown']) for data in all_nodes_data)
-        
-        # Aplicar límites configurables
-        col_path_width = min(max(max_path_len, 20), config['col_path_width'])
-        col_status_width = min(max(max_status_len, 8), config['col_status_width'])
-        col_markdown_width = min(max(max_markdown_len, 20), config['col_markdown_width'])
-        
-        # Encabezados
-        if config['show_headers']:
-            path_header = "RUTA".ljust(col_path_width)
-            status_header = "ESTADO".center(col_status_width)
-            markdown_header = "DESCRIPCIÓN".ljust(col_markdown_width)
-            
-            lines.append(f"{path_header} │ {status_header} │ {markdown_header}")
-            lines.append("─" * col_path_width + "─┼─" + "─" * col_status_width + "─┼─" + "─" * col_markdown_width)
-        
-        # Datos
-        for i, data in enumerate(all_nodes_data):
-            # Formatear columnas con alineación exacta
-            path_col = data['path']
-            if len(path_col) > col_path_width:
-                path_col = path_col[:col_path_width-3] + "..."
-            path_col = path_col.ljust(col_path_width)
-            
-            status_col = data['status'].center(col_status_width)
-            
-            markdown_col = data['markdown']
-            if len(markdown_col) > col_markdown_width:
-                markdown_col = markdown_col[:col_markdown_width-3] + "..."
-            markdown_col = markdown_col.ljust(col_markdown_width)
-            
-            # Colores alternados (simulado con espacios)
-            line = f"{path_col} │ {status_col} │ {markdown_col}"
-            lines.append(line)
-        
-        return '\n'.join(lines)
-    
-    def _collect_nodes_for_columns(self, node, path_prefix, data_list):
-        """Recopilar todos los nodos para vista de columnas."""
-        # Ruta completa con icono
-        full_path = f"{path_prefix}/{node.name}" if path_prefix else node.name
-        icon = ("📁 " if node.is_folder() else "📄 ")
-        path_with_icon = f"{icon}{full_path}"
-        
-        # Datos del nodo
-        node_data = {
-            'path': path_with_icon,
-            'status': node.status.value or "",
-            'markdown': node.markdown_short.strip() if node.markdown_short else ""
-        }
-        data_list.append(node_data)
-        
-        # Procesar hijos
-        if node.is_folder():
-            children = self.node_repository.find_children(node.node_id)
-            for child in children:
-                self._collect_nodes_for_columns(child, full_path, data_list)    
-            
-            # Icono
-            icon = "📁 " if config['show_icons'] else ""
-            
-            # Contador de archivos
-            count_info = ""
-            if config['show_file_count'] and file_count > 0:
-                count_info = f" ({file_count} archivos)"
-            
-            # Línea
-            line = f"{prefix}{branch}{icon}{node.name}{count_info}"
-            lines.append(line)
-            
-            # Hijos (solo carpetas)
-            folders = [child for child in children if child.is_folder()]
-            for i, child in enumerate(folders):
-                is_last_child = (i == len(folders) - 1)
-                self._generate_ascii_folders_node(child, lines, prefix + extend, is_last_child, config, stats)
-    
-    def _generate_columns_view(self, root_nodes):
-        """Generar vista en columnas."""
-        config = self.config[PreviewModes.COLUMNS]
-        lines = []
-        
-        # Encabezados
-        if config['show_headers']:
-            path_header = "RUTA".ljust(config['col_path_width'])
-            status_header = "ESTADO".ljust(config['col_status_width'])
-            markdown_header = "DESCRIPCIÓN".ljust(config['col_markdown_width'])
-            
-            lines.append(f"{path_header} | {status_header} | {markdown_header}")
-            lines.append("-" * (config['col_path_width'] + config['col_status_width'] + config['col_markdown_width'] + 6))
-        
-        # Nodos
-        row_count = 0
-        for root in root_nodes:
-            self._generate_columns_node(root, lines, "", config, row_count)
-            row_count += 1
-        
-        return '\n'.join(lines) if lines else "📂 Sin contenido"
-    
-    def _generate_columns_node(self, node, lines, path_prefix, config, row_count):
-        """Generar línea en columnas para un nodo."""
-        # Ruta completa
-        full_path = f"{path_prefix}/{node.name}" if path_prefix else node.name
-        icon = ("📁 " if node.is_folder() else "📄 ") if True else ""
-        path_col = f"{icon}{full_path}"
-        
-        # Truncar si es muy largo
-        if len(path_col) > config['col_path_width']:
-            path_col = path_col[:config['col_path_width']-3] + "..."
-        path_col = path_col.ljust(config['col_path_width'])
-        
-        # Estado
-        status_col = node.status.value.ljust(config['col_status_width'])
-        
-        # Markdown
-        markdown_text = node.markdown_short.strip() if node.markdown_short else ""
-        if len(markdown_text) > config['markdown_max_length']:
-            markdown_text = markdown_text[:config['markdown_max_length']] + "..."
-        markdown_col = markdown_text.ljust(config['col_markdown_width'])
-        
-        # Línea
-        line = f"{path_col} | {status_col} | {markdown_col}"
-        lines.append(line)
-        
-        # Hijos
-        if node.is_folder():
-            children = self.node_repository.find_children(node.node_id)
-            for child in children:
-                self._generate_columns_node(child, lines, full_path, config, row_count + 1)
+    # ==================== EXPORTACIÓN ====================
     
     def _export_txt(self):
         """Exportar vista previa a archivo TXT."""
         try:
-            # Diálogo para guardar archivo
             filename = filedialog.asksaveasfilename(
                 defaultextension=".txt",
                 filetypes=[
@@ -722,16 +444,10 @@ class PreviewContainer:
             )
             
             if filename:
-                # Obtener contenido de la vista previa
                 content = self.preview_text.get('1.0', tk.END).strip()
-                
-                # Crear encabezado profesional
                 header = self._generate_export_header()
-                
-                # Contenido completo
                 full_content = f"{header}\n\n{content}"
                 
-                # Guardar archivo
                 with open(filename, 'w', encoding='utf-8') as f:
                     f.write(full_content)
                 
@@ -742,13 +458,13 @@ class PreviewContainer:
             messagebox.showerror("Error de exportación", f"Error al exportar:\n{str(e)}")
             print(f"❌ Error exportando: {e}")
     
-    def _generate_export_header(self):
+    def _generate_export_header(self) -> str:
         """Generar encabezado profesional para exportación."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         config_summary = self._get_config_summary()
         
         return f"""// ===========================================================================================
-// TreeApp v4 Pro - Vista Previa del Proyecto
+// TreeCreator - Vista Previa del Proyecto
 // ===========================================================================================
 // 
 // Fecha de exportación: {timestamp}
@@ -759,7 +475,7 @@ class PreviewContainer:
 // 
 // ==========================================================================================="""
     
-    def _get_config_summary(self):
+    def _get_config_summary(self) -> str:
         """Obtener resumen de configuración actual."""
         config = self.config[self.current_mode]
         lines = []
@@ -769,6 +485,8 @@ class PreviewContainer:
             lines.append(f"//   {key_formatted}: {value}")
         
         return '\n'.join(lines)
+    
+    # ==================== MÉTODO PÚBLICO ====================
     
     def refresh(self):
         """Método público para refrescar la vista previa."""

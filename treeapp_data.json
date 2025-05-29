@@ -16,21 +16,6 @@
       "metadata": {}
     },
     {
-      "node_id": "file_754add6b",
-      "name": "Nodo de Prueba",
-      "node_type": "file",
-      "markdown_short": "# Este es un nodo de prueba",
-      "explanation": "Nodo creado para probar la funcionalidad",
-      "code": "print('Hola TreeApp!')",
-      "status": "",
-      "parent_id": null,
-      "children_ids": [],
-      "created": "2025-05-29T02:14:10.774828",
-      "modified": "2025-05-29T02:14:10.774858",
-      "tags": [],
-      "metadata": {}
-    },
-    {
       "node_id": "file_1836b318",
       "name": "Nodo de Prueba",
       "node_type": "file",
@@ -47,7 +32,7 @@
     },
     {
       "node_id": "file_04d7427f",
-      "name": "Nodo de Prueba",
+      "name": "nodo de pureba",
       "node_type": "file",
       "markdown_short": "# Este es un nodo de prueba",
       "explanation": "Nodo creado para probar la funcionalidad",
@@ -56,7 +41,7 @@
       "parent_id": null,
       "children_ids": [],
       "created": "2025-05-29T02:14:12.822862",
-      "modified": "2025-05-29T03:50:07.106828",
+      "modified": "2025-05-29T14:57:16.839978",
       "tags": [],
       "metadata": {}
     },
@@ -77,16 +62,16 @@
     },
     {
       "node_id": "file_9b0b631f",
-      "name": "Nodo de Prueba",
+      "name": "Nodo de Pdfadf",
       "node_type": "file",
-      "markdown_short": "# Este es un nodo de prueba",
-      "explanation": "Nodo creado para probar la funcionalidad",
+      "markdown_short": "# Este es un nodo de prueba dafasdfasdfd",
+      "explanation": "Nodo creado para probar la funcionalidaddfasdf",
       "code": "print('Hola TreeApp!')",
       "status": "",
       "parent_id": null,
       "children_ids": [],
       "created": "2025-05-29T02:14:13.726770",
-      "modified": "2025-05-29T02:14:13.726799",
+      "modified": "2025-05-29T14:57:42.823940",
       "tags": [],
       "metadata": {}
     },
@@ -137,7 +122,7 @@
     },
     {
       "node_id": "file_34a01c47",
-      "name": "Nodo de Prueba",
+      "name": "hola",
       "node_type": "file",
       "markdown_short": "# Este es un nodo de prueba",
       "explanation": "Nodo creado para probar la funcionalidad",
@@ -146,7 +131,7 @@
       "parent_id": "folder_a816e164",
       "children_ids": [],
       "created": "2025-05-29T02:14:14.583032",
-      "modified": "2025-05-29T02:14:14.583060",
+      "modified": "2025-05-29T15:06:37.345502",
       "tags": [],
       "metadata": {}
     },
@@ -687,6 +672,21 @@
       "children_ids": [],
       "created": "2025-05-29T02:24:25.983931",
       "modified": "2025-05-29T02:24:25.983959",
+      "tags": [],
+      "metadata": {}
+    },
+    {
+      "node_id": "folder_7340a4a2",
+      "name": "Nueva Carpeta",
+      "node_type": "folder",
+      "markdown_short": "# Nueva Carpeta",
+      "explanation": "Carpeta creada desde TreeCreator",
+      "code": "",
+      "status": "",
+      "parent_id": "folder_a816e164",
+      "children_ids": [],
+      "created": "2025-05-29T15:06:44.349461",
+      "modified": "2025-05-29T15:06:44.349490",
       "tags": [],
       "metadata": {}
     }

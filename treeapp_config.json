@@ -1,0 +1,87 @@
+{
+  "app": {
+    "version": "4.0.0",
+    "name": "TreeCreator",
+    "window_width": 1366,
+    "window_height": 705,
+    "remember_window_state": true,
+    "window_x": 583,
+    "window_y": 284
+  },
+  "tree_panel": {
+    "auto_expand_new_folders": true,
+    "show_line_numbers": false,
+    "double_click_action": "inline_edit",
+    "drag_drop_enabled": true,
+    "context_menu_enabled": true
+  },
+  "preview_panel": {
+    "default_mode": "Clásico",
+    "auto_refresh": true,
+    "font_family": "Consolas",
+    "font_size": 10,
+    "modes": {
+      "classic": {
+        "indent_spaces": 4,
+        "show_icons": true,
+        "show_status": true,
+        "show_markdown": true,
+        "markdown_max_length": 50,
+        "max_depth": 10
+      },
+      "ascii_full": {
+        "show_icons": true,
+        "show_status": true,
+        "show_markdown": true,
+        "markdown_max_length": 40,
+        "use_unicode": true,
+        "max_depth": 10
+      },
+      "ascii_folders": {
+        "show_icons": true,
+        "show_file_count": true,
+        "markdown_max_length": 40,
+        "max_depth": 10
+      },
+      "columns": {
+        "col_path_width": 200,
+        "col_status_width": 80,
+        "col_markdown_width": 300,
+        "show_headers": true,
+        "alternate_colors": true,
+        "markdown_max_length": 60
+      }
+    }
+  },
+  "editor_panel": {
+    "auto_save_delay": 500,
+    "font_family": "Arial",
+    "font_size": 10,
+    "syntax_highlighting": true,
+    "line_numbers": true
+  },
+  "validation": {
+    "max_filename_length": 255,
+    "forbidden_chars": "[<>:\"/\\\\|?*]",
+    "reserved_names": [
+      "CON",
+      "PRN",
+      "AUX",
+      "NUL"
+    ],
+    "allow_hidden_files": true
+  },
+  "file_templates": {
+    "include_timestamp": true,
+    "include_generator_comment": true,
+    "custom_templates": {}
+  },
+  "theme": {
+    "primary_color": "#3498db",
+    "secondary_color": "#2c3e50",
+    "success_color": "#27ae60",
+    "error_color": "#e74c3c",
+    "warning_color": "#f39c12",
+    "background_color": "#f8f8f8"
+  }
+}
