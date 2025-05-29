@@ -1,0 +1,395 @@
+# 🌳 TreeCreator - Requerimientos Completos
+
+## 🎨 **ESTÉTICA Y ANIMACIONES**
+
+### 🔄 **EASING Y TRANSICIONES**:
+- **Expand/Collapse carpetas**: `ease-in-out` 300ms con bounce sutil
+- **Sidebar collapse**: `cubic-bezier(0.4, 0.0, 0.2, 1)` 250ms
+- **Hover effects**: `ease-out` 150ms
+- **Drag & drop preview**: `ease-in` 100ms para aparecer, `ease-out` 200ms para desaparecer
+- **Selection highlight**: `ease-in-out` 200ms
+- **Context menu**: `ease-out` 150ms slide-in
+
+### 🎨 **COLORES EXACTOS VSCODE**:
+```css
+Background: #1e1e1e
+Sidebar: #252526
+Hover: #2a2d2e
+Selected: #094771
+Focus: #007acc
+Border: #3c3c3c
+Text Primary: #cccccc
+Text Secondary: #969696
+```
+
+### 🖱️ **MICROINTERACCIONES**:
+- **Folder icons**: Rotación 90° smooth al expandir/colapsar
+- **Item hover**: Subtle background fade-in
+- **Selection**: Blue highlight con border-left accent
+- **Drag preview**: Semi-transparent con drop-shadow
+- **Loading states**: Skeleton shimmer effect
+
+## 🏗️ **ARQUITECTURA Y ESTRUCTURA**
+
+### 📁 **ORGANIZACIÓN DE ARCHIVOS**:
+```
+presentation/views/panels/tree_panel/
+├── __init__.py
+├── tree_container.py                    # Container principal (60 líneas)
+├── components/
+│   ├── __init__.py
+│   ├── tree_widget.py                   # TreeView core (70 líneas)
+│   ├── tree_toolbar.py                  # Toolbar superior (40 líneas)
+│   ├── tree_header.py                   # Header por árbol (35 líneas)
+│   ├── selection_manager.py             # Gestión selección múltiple (55 líneas)
+│   └── tree_renderer.py                 # Renderizado visual (60 líneas)
+├── interactions/
+│   ├── __init__.py
+│   ├── drag_drop_handler.py             # Drag & drop avanzado (80 líneas)
+│   ├── context_menu_handler.py          # Menús contextuales (75 líneas)
+│   ├── keyboard_handler.py              # Shortcuts y navegación (50 líneas)
+│   ├── inline_editor.py                 # Edición in-situ (65 líneas)
+│   └── multi_tree_handler.py            # Gestión múltiples árboles (55 líneas)
+├── operations/
+│   ├── __init__.py
+│   ├── node_operations.py               # CRUD nodos (70 líneas)
+│   ├── tree_operations.py               # Operaciones de árbol (60 líneas)
+│   ├── import_operations.py             # Importar desde código (65 líneas)
+│   └── validation_operations.py         # Validaciones (45 líneas)
+├── animations/
+│   ├── __init__.py
+│   ├── easing_functions.py              # Funciones de easing (40 líneas)
+│   ├── transition_manager.py            # Gestión transiciones (50 líneas)
+│   └── animation_presets.py             # Presets de animaciones (35 líneas)
+└── utils/
+    ├── __init__.py
+    ├── tree_utils.py                    # Utilidades generales (55 líneas)
+    └── vscode_theme.py                  # Tema VSCode (45 líneas)
+```
+
+## ⚡ **FUNCIONALIDADES CORE**
+
+### 🌳 **GESTIÓN DE ÁRBOLES MÚLTIPLES**:
+- **Crear árbol**: Nuevo proyecto independiente
+- **Importar árbol**: Desde texto/código pegado
+- **Cerrar árbol**: Con confirmación si hay cambios
+- **Reordenar árboles**: Drag & drop de headers
+- **Fusionar árboles**: Drag de un árbol dentro de otro
+- **Separar rama**: Convertir rama en árbol independiente
+
+### 📁 **OPERACIONES DE NODOS**:
+- **Crear**: Carpeta/archivo con templates
+- **Renombrar**: Inline editing (F2, double-click)
+- **Eliminar**: Con confirmación y undo
+- **Copiar/Cortar/Pegar**: Clipboard avanzado
+- **Duplicar**: Con auto-renombrado
+- **Mover**: Drag & drop con validación
+
+### 🎯 **SELECCIÓN AVANZADA**:
+- **Single**: Click simple
+- **Multiple**: Ctrl+Click para agregar/quitar
+- **Range**: Shift+Click para rango
+- **Drag select**: Arrastrar para seleccionar área
+- **Select all**: Ctrl+A en árbol activo
+- **Keyboard navigation**: Arrows, Home, End, PageUp/Down
+
+### 🖱️ **DRAG & DROP PROFESIONAL**:
+- **Drag preview**: Miniatura del/los elementos
+- **Drop zones**: Highlight visual de destinos válidos
+- **Drop indicators**: Líneas de inserción entre elementos
+- **Scroll automático**: Al llegar a bordes durante drag
+- **Validation**: Prevenir ciclos y drops inválidos
+- **Multi-drag**: Arrastrar selección múltiple
+
+### 📋 **MENÚS CONTEXTUALES**:
+```
+Nodo seleccionado:
+├── Nuevo archivo/carpeta
+├── Copiar/Cortar/Pegar
+├── Renombrar (F2)
+├── Duplicar
+├── ────────────────
+├── Cambiar estado (✅❌⬜)
+├── ────────────────
+├── Separar como árbol nuevo
+├── ────────────────
+└── Eliminar (Del)
+
+Espacio vacío:
+├── Nuevo árbol
+├── Importar estructura
+├── ────────────────
+├── Pegar
+├── ────────────────
+└── Configuración
+
+Header de árbol:
+├── Renombrar árbol
+├── ────────────────
+├── Cerrar árbol
+├── Guardar árbol
+├── ────────────────
+└── Configuración árbol
+```
+
+## 🔧 **INTEGRACIÓN Y COMUNICACIÓN**
+
+### 📡 **EVENTOS TIEMPO REAL**:
+```javascript
+// Publicados por TreeCreator
+node_selected(node_id, tree_id)
+node_renamed(node_id, old_name, new_name)
+node_created(node_id, parent_id, type)
+node_deleted(node_id, parent_id)
+node_moved(node_id, old_parent, new_parent)
+node_status_changed(node_id, old_status, new_status)
+tree_created(tree_id, name)
+tree_closed(tree_id)
+
+// Escuchados por TreeCreator
+editor_name_changed(node_id, new_name)
+editor_content_changed(node_id, field, content)
+import_structure_requested(text, target_node)
+```
+
+### 🔄 **SINCRONIZACIÓN GLOBAL**:
+- **0ms propagation**: Eventos síncronos sin delays
+- **State consistency**: Estado global compartido
+- **Conflict resolution**: Manejo de cambios concurrentes
+- **Undo/Redo global**: Coordinado entre paneles
+
+## 🎮 **CONTROLES Y SHORTCUTS**
+
+### ⌨️ **KEYBOARD SHORTCUTS**:
+```
+F2                  → Renombrar inline
+Delete/Backspace    → Eliminar selección
+Ctrl+C/X/V          → Copiar/Cortar/Pegar
+Ctrl+D              → Duplicar
+Ctrl+A              → Seleccionar todo
+Ctrl+N              → Nuevo archivo
+Ctrl+Shift+N        → Nueva carpeta
+Enter               → Abrir/Editar
+Space               → Toggle expansión
+Arrows              → Navegación
+Home/End            → Primer/Último elemento
+PageUp/PageDown     → Scroll rápido
+Ctrl+Z/Y            → Undo/Redo
+```
+
+### 🖱️ **MOUSE INTERACTIONS**:
+```
+Single Click        → Seleccionar
+Double Click        → Renombrar inline
+Right Click         → Context menu
+Ctrl+Click          → Toggle selección múltiple
+Shift+Click         → Selección rango
+Drag                → Mover elementos
+Wheel               → Scroll vertical
+Ctrl+Wheel          → Zoom (opcional)
+```
+
+## 🔍 **FUNCIONALIDADES AVANZADAS**
+
+### 🔎 **BÚSQUEDA Y FILTRADO**:
+- **Quick search**: Ctrl+F para búsqueda en árbol
+- **Filter by type**: Solo carpetas/solo archivos
+- **Filter by status**: Por estado (✅❌⬜)
+- **Highlight matches**: Resaltar coincidencias
+- **Navigate results**: F3/Shift+F3
+
+### 📥 **IMPORTACIÓN DESDE CÓDIGO**:
+- **Auto-detection**: Detectar formato (tree, indented, paths)
+- **Preview**: Mostrar estructura antes de importar
+- **Target selection**: Elegir dónde insertar
+- **Conflict resolution**: Manejar nombres duplicados
+- **Batch import**: Importar múltiples estructuras
+
+### 💾 **PERSISTENCIA Y ESTADO**:
+- **Auto-save**: Cambios guardados automáticamente
+- **Layout memory**: Recordar expansión/colapso
+- **Selection memory**: Mantener selección entre sesiones
+- **Undo history**: Historial persistente de cambios
+- **Settings sync**: Configuración por usuario
+
+## 🎯 **CASOS DE USO ESPECÍFICOS**
+
+### 📋 **WORKFLOWS TÍPICOS**:
+1. **Crear proyecto nuevo**: Nuevo árbol → Estructura inicial
+2. **Importar estructura**: Pegar código → Preview → Confirmar
+3. **Reorganizar archivos**: Drag & drop múltiple
+4. **Trabajar en rama específica**: Separar como árbol nuevo
+5. **Fusionar proyectos**: Drag árbol completo a otro
+6. **Edición masiva**: Selección múltiple → Operaciones batch
+
+### 🔄 **INTEGRACIÓN CON EDITOR**:
+- **Selección → Carga**: Automática en panel editor
+- **Rename propagation**: Cambio nombre → Update editor
+- **Status sync**: Cambio estado ↔ Editor
+- **Content validation**: Validar antes de guardar cambios
+
+### 📊 **INTEGRACIÓN CON PREVIEW**:
+- **Live update**: Cambios → Re-render inmediato
+- **Statistics**: Conteos actualizados en tiempo real
+- **Structure view**: Vista sincronizada de jerarquía
+
+## 🛡️ **VALIDACIONES Y SEGURIDAD**
+
+### ✅ **VALIDACIONES DE DATOS**:
+- **Nombres válidos**: Sin caracteres prohibidos
+- **Jerarquía válida**: Prevenir ciclos
+- **Límites**: Profundidad máxima, cantidad de nodos
+- **Permisos**: Validar operaciones permitidas
+- **Integridad**: Verificar consistencia de datos
+
+### 🔒 **MANEJO DE ERRORES**:
+- **Graceful degradation**: Funcionar con datos parciales
+- **Error recovery**: Recuperar de estados inconsistentes
+- **User feedback**: Mensajes claros de error
+- **Logging**: Registro de operaciones para debugging
+
+## 📱 **RESPONSIVE Y ACCESIBILIDAD**
+
+### 📐 **LAYOUT ADAPTATIVO**:
+- **Min/Max widths**: Límites de redimensionado
+- **Collapse responsive**: Auto-colapso en pantallas pequeñas
+- **Touch friendly**: Targets de 44px mínimo para touch
+- **Zoom support**: Escalado de contenido
+
+### ♿ **ACCESIBILIDAD**:
+- **ARIA labels**: Para lectores de pantalla
+- **Keyboard navigation**: Navegación completa por teclado
+- **High contrast**: Soporte para modo alto contraste
+- **Screen reader**: Anuncios de cambios de estado
+- **Focus management**: Focus visible y lógico
+
+## 🎨 **PERSONALIZACIÓN**
+
+### 🎭 **TEMAS Y ESTILOS**:
+- **VSCode theme**: Tema por defecto
+- **Custom themes**: Soporte para temas personalizados
+- **Icon packs**: Diferentes sets de iconos
+- **Font customization**: Tamaño y familia de fuente
+- **Spacing**: Configurar indentación y padding
+
+### ⚙️ **CONFIGURACIONES**:
+- **Tree behavior**: Auto-expand, sorting, etc.
+- **Animation speed**: Velocidad de transiciones
+- **Drag sensitivity**: Sensibilidad del drag & drop
+- **Auto-save frequency**: Frecuencia de guardado
+- **Backup settings**: Configuración de respaldos
+
+
+🔧 SPLITTERS AGREGADOS A REQUERIMIENTOS:
+📏 Resizable Splitters:
+
+Hover state: Línea azul vertical (#007acc) al hacer hover
+Cursor: col-resize cuando está hoverable
+Active state: Highlight mantenido durante drag
+Hit area: Área de detección expandida (8px) aunque visual sea 2px
+Smooth transitions: border-color 150ms ease
+Visual feedback: Línea azul aparece/desaparece suavemente
+
+🎨 Estados del Splitter:
+Normal:     Invisible/sutil
+Hover:      Línea azul vertical 2px
+Active:     Línea azul + cursor col-resize
+Dragging:   Línea azul mantenida + preview de redimensionado
+📐 Especificaciones Técnicas:
+
+Width visual: 2px línea azul
+Hit area: 8px zona detección
+Color: #007acc (azul VSCode exacto)
+Position: Entre columnas TreeCreator ↔ Editor ↔ Preview
+Transition: 150ms ease para aparecer/desaparecer
+
+🚀 CONFIRMACIÓN ACTUALIZADA:
+Ahora el TreeCreator incluye TODOS los requerimientos incluyendo los Resizable Splitters profesionales con hover effect idéntico a esta interfaz.
+¿Procedo a crear el primer archivo con esta funcionalidad completa integrada? 🎯
+
+
+
+🎨 ESTILO MODERNO SONNET AGREGADO:
+📏 SPLITTERS ESTILO SONNET:
+
+Línea ultra-fina: 1px en estado normal, invisible/transparente
+Hover elegante: 2px azul sutil (#007acc) con fade-in suave
+Sin relieves: Completamente flat, sin borders 3D
+Área de detección: 6px invisible alrededor de la línea
+Cursor moderno: col-resize limpio sin efectos retro
+
+🎚️ SLIDERS ESTILO SONNET:
+
+Track ultra-delgado: 2px altura, color sutil
+Handle minimalista: Círculo pequeño (12px) sin bordes chunky
+Hover states: Subtle highlight sin over-styling
+Smooth animations: 200ms cubic-bezier transitions
+Sin gradientes: Colores planos, modernos
+
+🚫 ELIMINAR DISEÑO AÑOS 80:
+❌ NO MÁS:
+- Borders raised/lowered 3D
+- Gradientes metálicos
+- Botones con bisel chunky
+- Colores saturados
+- Efectos de relieve
+- Separadores gruesos tipo Windows 98
+
+✅ SÍ QUEREMOS:
+- Flat design moderno
+- Líneas ultra-finas
+- Colores sutiles
+- Transiciones suaves
+- Minimalismo elegante
+- Estética web moderna
+🎭 PALETA SONNET/CLAUDE:
+cssBackgrounds:     #ffffff / #1e1e1e
+Subtle lines:    #e5e7eb / #374151  
+Hover accent:    #3b82f6 / #007acc
+Text primary:    #111827 / #cccccc
+Text secondary:  #6b7280 / #969696
+🚀 CONFIRMACIÓN ACTUALIZADA:
+TreeCreator ahora tendrá diseño moderno estilo Sonnet:
+
+✅ Splitters ultra-finos elegantes
+✅ Sliders minimalistas
+✅ Sin efectos retro de los 80s
+✅ Flat design profesional
+✅ Transiciones suaves modernas
+
+
+
+crear estilos globales primero es mucho más eficiente.
+🎨 ESTRATEGIA DE ESTILOS GLOBALES:
+📁 ESTRUCTURA PROPUESTA:
+presentation/styling/
+├── __init__.py
+├── global_theme.py              # Tema global Sonnet (50 líneas)
+├── components/
+│   ├── __init__.py
+│   ├── modern_splitters.py      # Splitters estilo Sonnet (40 líneas)
+│   ├── material_icons.py        # Sistema iconos Material (35 líneas)
+│   ├── modern_buttons.py        # Botones flat modernos (45 líneas)
+│   └── modern_inputs.py         # Inputs/fields modernos (40 líneas)
+├── constants/
+│   ├── __init__.py
+│   ├── modern_colors.py         # Paleta Sonnet completa (30 líneas)
+│   ├── typography.py            # Fuentes modernas (25 líneas)
+│   └── animations.py            # Easing functions (35 líneas)
+└── mixins/
+    ├── __init__.py
+    └── hover_effects.py          # Efectos hover reutilizables (30 líneas)
+🎯 VENTAJAS:
+
+Consistencia: Mismo look en toda la app
+Mantenibilidad: Cambio en un lugar → efecto global
+Performance: Widgets comparten estilos
+Escalabilidad: Fácil agregar nuevos componentes
+
+❓ CONFIRMACIÓN:
+¿Quieres que empecemos creando primero los estilos globales?
+
+✅ modern_colors.py - Paleta Sonnet completa
+✅ modern_splitters.py - Splitters reutilizables
+✅ material_icons.py - Sistema de iconos global
+✅ global_theme.py - Coordinador de todo
