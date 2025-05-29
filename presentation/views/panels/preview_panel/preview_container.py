@@ -136,7 +136,7 @@ class PreviewContainer:
         preview_frame = tk.Frame(self.main_frame, bg='#ffffff', relief=tk.SUNKEN, bd=1)
         preview_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
         
-        # Text widget para mostrar la vista previa
+        # Text widget para mostrar la vista previa - HABILITADO PARA SELECCIÓN
         text_frame = tk.Frame(preview_frame)
         text_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -146,11 +146,14 @@ class PreviewContainer:
             bg='#ffffff',
             fg='#2c3e50',
             wrap=tk.NONE,
-            state=tk.DISABLED,
+            state=tk.NORMAL,  # CAMBIO: Permitir selección y copia
             relief=tk.FLAT,
             bd=5,
             padx=10,
-            pady=10
+            pady=10,
+            selectbackground='#3498db',
+            selectforeground='white',
+            cursor='text'  # Cursor de texto para indicar que es seleccionable
         )
         
         # Scrollbars
@@ -163,6 +166,54 @@ class PreviewContainer:
         self.preview_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         v_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         h_scroll.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        # Habilitar Ctrl+A para seleccionar todo
+        self.preview_text.bind('<Control-a>', self._select_all_text)
+        # Habilitar Ctrl+C (ya funciona por defecto)
+        
+        # Menú contextual para copiar
+        self._setup_preview_context_menu()
+    
+    def _select_all_text(self, event=None):
+        """Seleccionar todo el texto en la vista previa."""
+        self.preview_text.tag_add(tk.SEL, "1.0", tk.END)
+        return 'break'  # Prevenir comportamiento por defecto
+    
+    def _setup_preview_context_menu(self):
+        """Configurar menú contextual para la vista previa."""
+        self.preview_context_menu = tk.Menu(self.preview_text, tearoff=0)
+        self.preview_context_menu.add_command(label="📋 Copiar", command=self._copy_selected_text, accelerator="Ctrl+C")
+        self.preview_context_menu.add_command(label="📋 Copiar Todo", command=self._copy_all_text, accelerator="Ctrl+A")
+        self.preview_context_menu.add_separator()
+        self.preview_context_menu.add_command(label="🔄 Refrescar", command=self._refresh_preview)
+        
+        def show_context_menu(event):
+            try:
+                self.preview_context_menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                self.preview_context_menu.grab_release()
+        
+        self.preview_text.bind('<Button-3>', show_context_menu)
+    
+    def _copy_selected_text(self):
+        """Copiar texto seleccionado."""
+        try:
+            selected = self.preview_text.get(tk.SEL_FIRST, tk.SEL_LAST)
+            if selected:
+                self.preview_text.clipboard_clear()
+                self.preview_text.clipboard_append(selected)
+                print("📋 Texto seleccionado copiado")
+        except tk.TclError:
+            # No hay selección
+            self._copy_all_text()
+    
+    def _copy_all_text(self):
+        """Copiar todo el texto de la vista previa."""
+        all_text = self.preview_text.get('1.0', tk.END).strip()
+        if all_text:
+            self.preview_text.clipboard_clear()
+            self.preview_text.clipboard_append(all_text)
+            print("📋 Todo el texto copiado")
     
     def _setup_config_panel(self):
         """Configurar panel de configuración (colapsable)."""
@@ -460,49 +511,131 @@ class PreviewContainer:
                 self._generate_ascii_node(child, lines, prefix + extend, is_last_child, config)
     
     def _generate_ascii_folders_view(self, root_nodes):
-        """Generar vista ASCII solo carpetas."""
+        """Generar vista ASCII solo carpetas con markdown y estado."""
         config = self.config[PreviewModes.ASCII_FOLDERS]
         lines = []
-        stats = {'total_files': 0, 'completed': 0, 'pending': 0, 'in_progress': 0}
         
         for i, root in enumerate(root_nodes):
             is_last_root = (i == len(root_nodes) - 1)
-            self._generate_ascii_folders_node(root, lines, "", is_last_root, config, stats)
-        
-        # Estadísticas al final
-        if config['show_status_summary']:
-            lines.extend([
-                "",
-                "📊 ESTADÍSTICAS:",
-                f"   Total archivos: {stats['total_files']}",
-                f"   Completados: {stats['completed']} ✅",
-                f"   En progreso: {stats['in_progress']} ⬜",
-                f"   Pendientes: {stats['pending']} ❌"
-            ])
+            self._generate_ascii_folders_node(root, lines, "", is_last_root, config)
         
         return '\n'.join(lines) if lines else "📂 Sin contenido"
     
-    def _generate_ascii_folders_node(self, node, lines, prefix, is_last, config, stats):
-        """Generar línea ASCII solo para carpetas."""
+    def _generate_ascii_folders_node(self, node, lines, prefix, is_last, config):
+        """Generar línea ASCII solo para carpetas con markdown y estado."""
         if node.is_folder():
             # Contar archivos en esta carpeta
             children = self.node_repository.find_children(node.node_id)
             file_count = len([child for child in children if child.is_file()])
             
-            # Actualizar estadísticas
-            for child in children:
-                if child.is_file():
-                    stats['total_files'] += 1
-                    if child.status.value == "✅":
-                        stats['completed'] += 1
-                    elif child.status.value == "⬜":
-                        stats['in_progress'] += 1
-                    elif child.status.value == "❌":
-                        stats['pending'] += 1
-            
             # Caracteres ASCII
             branch = "├── " if not is_last else "└── "
             extend = "│   " if not is_last else "    "
+            
+            # Icono
+            icon = "📁 " if config['show_icons'] else ""
+            
+            # Contador de archivos
+            count_info = ""
+            if config['show_file_count'] and file_count > 0:
+                count_info = f" ({file_count} archivos)"
+            
+            # Estado de la carpeta
+            status_info = ""
+            if node.status.value:
+                status_info = f" {node.status.value}"
+            
+            # Markdown de la carpeta
+            markdown_info = ""
+            if node.markdown_short:
+                md_text = node.markdown_short.strip()
+                if len(md_text) > 40:
+                    md_text = md_text[:40] + "..."
+                markdown_info = f" - {md_text}"
+            
+            # Línea completa
+            line = f"{prefix}{branch}{icon}{node.name}{count_info}{status_info}{markdown_info}"
+            lines.append(line)
+            
+            # Hijos (solo carpetas)
+            folders = [child for child in children if child.is_folder()]
+            for i, child in enumerate(folders):
+                is_last_child = (i == len(folders) - 1)
+                self._generate_ascii_folders_node(child, lines, prefix + extend, is_last_child, config)
+    
+    def _generate_columns_view(self, root_nodes):
+        """Generar vista en columnas con alineación perfecta."""
+        config = self.config[PreviewModes.COLUMNS]
+        lines = []
+        
+        # Recopilar todos los nodos para calcular anchos óptimos
+        all_nodes_data = []
+        for root in root_nodes:
+            self._collect_nodes_for_columns(root, "", all_nodes_data)
+        
+        if not all_nodes_data:
+            return "📂 Sin contenido"
+        
+        # Calcular anchos óptimos basados en el contenido
+        max_path_len = max(len(data['path']) for data in all_nodes_data)
+        max_status_len = max(len(data['status']) for data in all_nodes_data)
+        max_markdown_len = max(len(data['markdown']) for data in all_nodes_data)
+        
+        # Aplicar límites configurables
+        col_path_width = min(max(max_path_len, 20), config['col_path_width'])
+        col_status_width = min(max(max_status_len, 8), config['col_status_width'])
+        col_markdown_width = min(max(max_markdown_len, 20), config['col_markdown_width'])
+        
+        # Encabezados
+        if config['show_headers']:
+            path_header = "RUTA".ljust(col_path_width)
+            status_header = "ESTADO".center(col_status_width)
+            markdown_header = "DESCRIPCIÓN".ljust(col_markdown_width)
+            
+            lines.append(f"{path_header} │ {status_header} │ {markdown_header}")
+            lines.append("─" * col_path_width + "─┼─" + "─" * col_status_width + "─┼─" + "─" * col_markdown_width)
+        
+        # Datos
+        for i, data in enumerate(all_nodes_data):
+            # Formatear columnas con alineación exacta
+            path_col = data['path']
+            if len(path_col) > col_path_width:
+                path_col = path_col[:col_path_width-3] + "..."
+            path_col = path_col.ljust(col_path_width)
+            
+            status_col = data['status'].center(col_status_width)
+            
+            markdown_col = data['markdown']
+            if len(markdown_col) > col_markdown_width:
+                markdown_col = markdown_col[:col_markdown_width-3] + "..."
+            markdown_col = markdown_col.ljust(col_markdown_width)
+            
+            # Colores alternados (simulado con espacios)
+            line = f"{path_col} │ {status_col} │ {markdown_col}"
+            lines.append(line)
+        
+        return '\n'.join(lines)
+    
+    def _collect_nodes_for_columns(self, node, path_prefix, data_list):
+        """Recopilar todos los nodos para vista de columnas."""
+        # Ruta completa con icono
+        full_path = f"{path_prefix}/{node.name}" if path_prefix else node.name
+        icon = ("📁 " if node.is_folder() else "📄 ")
+        path_with_icon = f"{icon}{full_path}"
+        
+        # Datos del nodo
+        node_data = {
+            'path': path_with_icon,
+            'status': node.status.value or "",
+            'markdown': node.markdown_short.strip() if node.markdown_short else ""
+        }
+        data_list.append(node_data)
+        
+        # Procesar hijos
+        if node.is_folder():
+            children = self.node_repository.find_children(node.node_id)
+            for child in children:
+                self._collect_nodes_for_columns(child, full_path, data_list)    
             
             # Icono
             icon = "📁 " if config['show_icons'] else ""

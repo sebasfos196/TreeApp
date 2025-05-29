@@ -79,10 +79,6 @@ class MainWindow:
     def _setup_tree_panel(self):
         """Configurar panel del explorador de árbol."""
         # Importar y crear TreeView
-        import sys
-        import os
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-        
         from presentation.views.panels.tree_panel.tree_view import TreeView
         
         # Crear TreeView real
@@ -91,10 +87,6 @@ class MainWindow:
     def _setup_editor_panel(self):
         """Configurar panel del editor (4 campos)."""
         # Importar y crear EditorContainer
-        import sys
-        import os
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-        
         from presentation.views.panels.editor_panel.editor_container import EditorContainer
         
         # Crear editor de documentación
@@ -105,23 +97,14 @@ class MainWindow:
     
     def _setup_preview_panel(self):
         """Configurar panel de vista previa."""
-        # Título  
-        title_label = tk.Label(
-            self.right_frame,
-            text="🔍 Vista Previa",
-            font=('Arial', 12, 'bold'),
-            bg='#f8f8f8'
-        )
-        title_label.pack(pady=5)
+        # Importar y crear PreviewContainer
+        from presentation.views.panels.preview_panel.preview_container import PreviewContainer
         
-        # Placeholder para vista previa
-        preview_label = tk.Label(
-            self.right_frame,
-            text="Vista Previa del Árbol\n4 Modos:\n- Clásico\n- ASCII\n- Solo Carpetas\n- Columnas\n(próximamente)",
-            bg='#f8f8f8',
-            justify=tk.LEFT
-        )
-        preview_label.pack(expand=True)
+        # Crear contenedor de vista previa
+        self.preview_container = PreviewContainer(self.right_frame, self.node_repository)
+        
+        # Conectar cambios para refrescar vista previa
+        self._connect_preview_updates()
     
     def _setup_events(self):
         """Configurar eventos y bindings."""
@@ -142,10 +125,61 @@ class MainWindow:
         def on_name_update(node_id, new_name):
             """Callback para actualizar TreeView cuando cambie el nombre en el editor."""
             self.tree_view.update_node_display(node_id, new_name)
+            # También refrescar vista previa cuando cambie el nombre
+            self.preview_container.refresh()
         
         # Establecer callbacks bidireccionales
         self.tree_view.set_selection_callback(on_tree_select)
         self.editor_container.set_tree_update_callback(on_name_update)
+    
+    def _connect_preview_updates(self):
+        """Conectar eventos que requieren actualizar la vista previa."""
+        # Wrapper para refrescar vista previa después de crear nodos
+        original_create_folder = self.tree_view._create_folder
+        original_create_file = self.tree_view._create_file
+        original_delete_node = self.tree_view._delete_node
+        
+        def refresh_after_create_folder():
+            result = original_create_folder()
+            self.preview_container.refresh()
+            return result
+        
+        def refresh_after_create_file():
+            result = original_create_file()
+            self.preview_container.refresh()
+            return result
+        
+        def refresh_after_delete():
+            result = original_delete_node()
+            self.preview_container.refresh()
+            return result
+        
+        # Reemplazar métodos
+        self.tree_view._create_folder = refresh_after_create_folder
+        self.tree_view._create_file = refresh_after_create_file
+        self.tree_view._delete_node = refresh_after_delete
+        
+        # NUEVO: Refrescar vista previa cuando cambien TODOS los campos del editor
+        original_auto_save = self.editor_container._auto_save
+        
+        def refresh_after_save():
+            result = original_auto_save()
+            # Refrescar vista previa después del guardado (TIEMPO REAL)
+            self.preview_container.refresh()
+            return result
+        
+        self.editor_container._auto_save = refresh_after_save
+        
+        # NUEVO: Refrescar también después de edición inline en TreeView
+        if hasattr(self.tree_view, '_finish_inline_edit'):
+            original_finish_inline = self.tree_view._finish_inline_edit
+            
+            def refresh_after_inline_edit(event=None):
+                result = original_finish_inline(event)
+                self.preview_container.refresh()
+                return result
+            
+            self.tree_view._finish_inline_edit = refresh_after_inline_edit
     
     def _on_closing(self):
         """Manejar cierre de la aplicación."""
