@@ -1,0 +1,32 @@
+¡Sí!
+Ese efecto es conocido en UX/UI como “gap animation”, “placeholder animation”, “drop indicator”, “animated reordering”, o “drag-over highlight”.
+Es muy común en interfaces de drag & drop para listas y árboles (como exploradores de archivos, Trello, Notion, editores de proyectos, etc).
+
+¿Qué hace este efecto?
+Cuando arrastras un elemento (carpeta, archivo, tarjeta) sobre una lista/árbol,
+las demás se “abren” o se separan visualmente, dejando un hueco (gap) donde el elemento se podría soltar.
+Opcionalmente, se puede animar el movimiento de las carpetas para que el usuario vea claramente dónde quedará el nuevo elemento.
+Suele complementarse con una línea, sombra, recuadro o resalte en el lugar exacto de inserción.
+Nombres habituales del efecto
+Drop indicator
+Animated gap / gap animation
+Drag placeholder
+Drag-over highlight
+Insertion line / insert indicator
+Auto-scrolling with animated reordering (cuando también se hace scroll automático)
+Slot animation (en algunos frameworks JS)
+¿Cómo se implementa en Tkinter/Python?
+Aunque Tkinter no lo trae de serie, puedes implementarlo así:
+
+Detectar la posición actual del mouse durante el drag.
+Calcular entre qué elementos se encuentra.
+Dibujar un “placeholder” visual (línea, espacio, recuadro, fondo distinto, etc.) en el widget (por ejemplo, usando Canvas o modificando el padding/margin del item).
+Mover los elementos con animación suave (en Tkinter puede ser limitado, pero puedes simularlo reposicionando los widgets).
+Quitar el placeholder al terminar el drag.
+Ejemplo visual (pseudo-UI):
+Code
+Carpeta A
+Carpeta B
+──────────── ← (gap, línea, o highlight: aquí soltarás)
+Carpeta C
+Carpeta D

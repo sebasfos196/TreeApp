@@ -6,7 +6,8 @@ ARBOL DE CARPETAS DE TREEAPP_V4_PRO REMANUFACTURADO
 
 treeapp_v4_pro/
 ├── main.py
-├── domain/
+├──domain/
+
 │   ├── events/
 │   │   ├── event_bus.py              # 50 líneas
 │   │   ├── event_handler.py          # 30 líneas  
@@ -126,6 +127,125 @@ treeapp_v4_pro/
 └── config/
     ├── app_config.json
     └── user_preferences.json
+
+
+
+TreeApp/
+├── main.py                                              # 30 líneas - Punto de entrada
+├── domain/
+│   ├── __init__.py                                      # Vacío
+│   ├── events/
+│   │   ├── __init__.py                                  # Vacío
+│   │   └── event_bus.py                                 # 50 líneas - Sistema de eventos
+│   ├── node/
+│   │   ├── __init__.py                                  # Vacío  
+│   │   └── node_entity.py                               # 60 líneas - Entidad Node con 4 campos
+│   └── validation.py                                    # 80 líneas - Validaciones de dominio
+├── application/
+│   ├── __init__.py                                      # Vacío
+│   └── commands/
+│       ├── __init__.py                                  # Vacío
+│       ├── command_bus.py                               # 60 líneas - Bus de comandos
+│       └── node/
+│           ├── __init__.py                              # Vacío
+│           └── create_node_command.py                   # 70 líneas - Comando crear nodo
+├── infrastructure/
+│   ├── __init__.py                                      # Vacío
+│   └── persistence/
+│       ├── __init__.py                                  # Vacío
+│       └── json_repository.py                           # 120 líneas - Persistencia JSON
+├── presentation/
+│   ├── __init__.py                                      # Vacío
+│   ├── main_window.py                                   # 120 líneas - Ventana principal
+│   └── views/
+│       ├── __init__.py                                  # Vacío
+│       └── panels/
+│           ├── __init__.py                              # Vacío
+│           ├── tree_panel/
+│           │   ├── __init__.py                          # Vacío
+│           │   └── tree_view.py                         # 250 líneas - TreeView con TreeWidget
+│           └── editor_panel/
+│               ├── __init__.py                          # Vacío
+│               └── editor_container.py                  # 350 líneas - Editor 4 campos
+└── treeapp_data.json                                    # Datos persistidos (generado)
+
+ARCHIVOS TOTALES: 21 archivos
+LÍNEAS DE CÓDIGO: ~1,200 líneas
+
+================================================================================
+FUNCIONALIDADES IMPLEMENTADAS ✅
+================================================================================
+
+🏗️ ARQUITECTURA DDD:
+✅ Domain: Entidades, eventos, validaciones
+✅ Application: Comandos, handlers  
+✅ Infrastructure: Persistencia JSON
+✅ Presentation: UI con 3 paneles
+
+📊 PANEL IZQUIERDO - EXPLORADOR:
+✅ TreeView funcional con iconos 📁📄
+✅ Botones: Nueva Carpeta, Nuevo Archivo, Eliminar
+✅ Selección de nodos
+✅ Estados visibles (✅❌⬜)
+✅ Creación automática de nodo raíz
+✅ Persistencia en JSON
+
+📝 PANEL CENTRAL - DOCUMENTACIÓN:
+✅ 4 campos editables:
+   • NODO (nombre)
+   • MARKDOWN (contenido, 2 líneas)
+   • NOTAS TECNICAS (explicación)
+   • CODIGO (con numeración de líneas)
+✅ Auto-guardado en tiempo real (500ms)
+✅ Paneles redimensionables verticalmente
+✅ Sincronización bidireccional con TreeView
+✅ Separación de 2mm entre campos
+✅ Campos flexibles y adaptables
+
+🔄 SINCRONIZACIÓN:
+✅ TreeView → Editor: Seleccionar carga automáticamente
+✅ Editor → TreeView: Cambiar nombre actualiza árbol
+✅ Persistencia automática en JSON
+✅ Eventos desacoplados con EventBus
+
+================================================================================
+PRÓXIMAS FUNCIONALIDADES (pendientes)
+================================================================================
+
+🔍 PANEL DERECHO - VISTA PREVIA:
+❌ 4 modos de visualización (Clásico, ASCII, Solo Carpetas, Columnas)
+❌ Exportación TXT
+❌ Configuración de formatos
+
+🖱️ FUNCIONALIDADES AVANZADAS:
+❌ Drag & Drop entre nodos
+❌ Selección múltiple (Ctrl+Click)
+❌ Menú contextual (click derecho)
+❌ Parser de código para agregar estructura
+
+💻 BOTÓN "AGREGAR AL PROYECTO":
+❌ Parser de texto/código
+❌ Creación automática de estructura de carpetas
+❌ Integración con campo CODIGO
+
+================================================================================
+ESTADO ACTUAL: MVP FUNCIONAL ✅
+================================================================================
+
+El proyecto tiene una base sólida con:
+- ✅ Arquitectura profesional DDD
+- ✅ Persistencia funcionando
+- ✅ UI interactiva y responsive  
+- ✅ Auto-guardado en tiempo real
+- ✅ Sincronización perfecta
+
+Listo para continuar con Vista Previa y funcionalidades avanzadas! 🚀
+
+
+
+
+
+
 
 
 # 🌳 Funcionalidades del Explorador de Proyectos (Tree Explorer)
