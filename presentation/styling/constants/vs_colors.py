@@ -1,6 +1,6 @@
 """
-presentation/styling/constants/vscode_colors.py
-===============================================
+presentation/styling/constants/vscode_colors.py - CREAR ESTE ARCHIVO
+===================================================================
 
 Colores exactos de Visual Studio Code Dark Theme
 - Paleta completa con códigos hex precisos
