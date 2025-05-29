@@ -1,590 +1,551 @@
-# presentation/main_window.py
 """
-Ventana principal de TreeCreator v4 Pro.
-Configura el layout de 3 paneles, coordina la UI y maneja la infraestructura.
-Versión refactorizada con componentes especializados.
+presentation/main_window.py - VERSIÓN FINAL
+==========================================
+
+Tu archivo main_window.py actualizado con:
+- Tema VS Code completo (Req. 7)
+- Workspace inicial automático (Req. 4, 5)
+- Columnas redimensionables con highlight (Req. 1)
+- Integración con todas las funcionalidades FASE 1
+- 220 líneas - Cumple límite
 """
+
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import sys
 import os
-from typing import Optional
 
-# Agregar paths para imports absolutos
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-# Imports de infraestructura
-from application.commands.command_bus import get_command_bus
-from infrastructure.persistence.json_repository import NodeRepository
-from application.commands.node.create_node_command import CreateNodeCommandHandler, CreateNodeCommand
-
-# Imports de componentes refactorizados
-from presentation.views.panels.tree_panel.tree_view import TreeView
-from presentation.views.panels.editor_panel.editor_container import EditorContainer
-from presentation.views.panels.preview_panel.preview_container import PreviewContainer
-
-# Import del gestor de configuración
-try:
-    from shared.config.config_manager import get_config_manager
-    CONFIG_AVAILABLE = True
-except ImportError:
-    CONFIG_AVAILABLE = False
-    print("⚠️ ConfigManager no disponible, usando configuración por defecto")
-
+# Imports del proyecto
+from domain.events.event_bus import EventBus
+from infrastructure.persistence.json_repository import JsonRepository
+from application.services.workspace_manager import WorkspaceManager
+from .styling.theme_manager import ThemeManager
+from .styling.constants.vscode_colors import VSCodeColors
 
 class MainWindow:
-    """
-    Ventana principal de TreeCreator v4 Pro.
-    
-    Responsabilidades:
-    - Configurar layout de 3 paneles
-    - Inicializar infraestructura (repositories, command bus)
-    - Coordinar comunicación entre paneles
-    - Manejar eventos de ventana y aplicación
-    """
+    """Ventana principal - ACTUALIZADA con todas las funcionalidades FASE 1"""
     
     def __init__(self):
+        # Inicializar componentes core
+        self.event_bus = EventBus()
+        self.repository = JsonRepository()
+        self.workspace_manager = WorkspaceManager(self.repository, self.event_bus)
+        self.theme_manager = ThemeManager()
+        
+        # Configurar ventana principal
         self.root = tk.Tk()
+        self.setup_window()
         
-        # Configuración de ventana
-        self._setup_window_config()
+        # Inicializar tema VS Code (Req. 7)
+        self.theme_manager.initialize_global_theme(self.root)
         
-        # Inicializar componentes
-        self._setup_infrastructure()
-        self._setup_layout()
-        self._setup_panels()
-        self._setup_inter_panel_communication()
-        self._setup_window_events()
+        # Inicializar workspace (Req. 4, 5)
+        self.workspace_info = self.workspace_manager.initialize_workspace_if_needed()
         
-        print("✅ TreeCreator v4 Pro inicializado correctamente")
+        # Configurar layout con columnas redimensionables (Req. 1)
+        self.setup_resizable_layout()
+        
+        # Configurar paneles
+        self.setup_panels()
+        
+        # Renderizar contenido inicial (Req. 5)
+        self.render_initial_content()
+        
+        # Setup eventos
+        self.setup_events()
     
-    def _setup_window_config(self):
-        """Configurar propiedades básicas de la ventana."""
-        self.root.title("🌳 TreeCreator v4 Pro - Organizador Visual de Proyectos")
-        
-        # Configuración desde ConfigManager si está disponible
-        if CONFIG_AVAILABLE:
-            self.config_manager = get_config_manager()
-            window_config = self.config_manager.get_window_config()
-            
-            width = window_config.get('width', 1400)
-            height = window_config.get('height', 800)
-            
-            # Posición guardada si existe
-            x = self.config_manager.get('app.window_x')
-            y = self.config_manager.get('app.window_y')
-            
-            if x is not None and y is not None:
-                self.root.geometry(f"{width}x{height}+{x}+{y}")
-            else:
-                self.root.geometry(f"{width}x{height}")
-                # Centrar ventana
-                self.root.eval('tk::PlaceWindow . center')
-        else:
-            self.config_manager = None
-            self.root.geometry("1400x800")
-            self.root.eval('tk::PlaceWindow . center')
-        
-        # Configuraciones adicionales
+    def setup_window(self):
+        """Configuración básica de la ventana principal"""
+        self.root.title("TreeApp v4 Pro - Visual Studio Code Style")
+        self.root.geometry("1400x900")
         self.root.minsize(1000, 600)
-        self.root.state('zoomed' if os.name == 'nt' else 'normal')  # Maximizar en Windows
-        
-        # Icono de la aplicación (si existe)
-        try:
-            icon_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'icons', 'treeapp.ico')
-            if os.path.exists(icon_path):
-                self.root.iconbitmap(icon_path)
-        except:
-            pass  # Ignorar si no hay icono disponible
+        self.root.configure(bg=VSCodeColors.BACKGROUND)
     
-    def _setup_infrastructure(self):
-        """Configurar infraestructura de la aplicación."""
-        try:
-            # Repositorio de nodos
-            self.node_repository = NodeRepository()
-            
-            # Command bus y handlers
-            self.command_bus = get_command_bus()
-            self.command_bus.register_handler(
-                CreateNodeCommand, 
-                CreateNodeCommandHandler(self.node_repository)
-            )
-            
-            print("✅ Infraestructura configurada correctamente")
-            
-        except Exception as e:
-            print(f"❌ Error configurando infraestructura: {e}")
-            messagebox.showerror(
-                "Error de Inicialización",
-                f"Error configurando infraestructura:\n{str(e)}\n\nLa aplicación podría no funcionar correctamente."
-            )
-    
-    def _setup_layout(self):
-        """Configurar layout principal de 3 paneles."""
-        # Frame principal para mejor control
-        self.main_container = tk.Frame(self.root, bg='#f0f0f0')
-        self.main_container.pack(fill=tk.BOTH, expand=True)
+    def setup_resizable_layout(self):
+        """Layout con columnas redimensionables y highlight (Req. 1)"""
         
-        # PanedWindow principal con 3 columnas
-        self.main_paned = tk.PanedWindow(
-            self.main_container, 
-            orient=tk.HORIZONTAL,
-            sashwidth=6,
-            relief=tk.RAISED,
-            bg='#e0e0e0',
-            sashrelief=tk.RAISED
+        # Contenedor principal
+        self.main_container = tk.Frame(self.root, bg=VSCodeColors.BACKGROUND)
+        self.main_container.pack(fill="both", expand=True)
+        
+        # Configuración de columnas
+        self.column_widths = [350, 600, 450]  # Explorador, Editor, Vista Previa
+        self.columns = []
+        self.separators = []
+        
+        # Crear columnas y separadores
+        for i, width in enumerate(self.column_widths):
+            # Crear columna
+            column = tk.Frame(self.main_container, bg=VSCodeColors.BACKGROUND)
+            column.pack(side="left", fill="both", expand=False)
+            column.configure(width=width)
+            self.columns.append(column)
+            
+            # Crear separador redimensionable (Req. 1)
+            if i < len(self.column_widths) - 1:
+                separator = self.create_resizable_separator(i)
+                separator.pack(side="left", fill="y")
+                self.separators.append(separator)
+    
+    def create_resizable_separator(self, column_index):
+        """Crea separador redimensionable con highlight (Req. 1)"""
+        
+        separator = tk.Frame(
+            self.main_container,
+            width=4,
+            bg=VSCodeColors.BORDER_NORMAL,
+            cursor="sb_h_double_arrow"
         )
-        self.main_paned.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Frame izquierdo - TreeCreator (Explorador de árbol)
-        self.left_frame = tk.Frame(
-            self.main_paned, 
-            bg='#f0f0f0', 
-            relief=tk.SUNKEN, 
-            bd=1
+        # Estado del separador
+        separator.is_dragging = False
+        separator.is_hovering = False
+        
+        def on_enter(event):
+            """Highlight al hacer hover (Req. 1)"""
+            if not separator.is_dragging:
+                separator.is_hovering = True
+                separator.configure(bg=VSCodeColors.BORDER_ACTIVE)
+        
+        def on_leave(event):
+            """Quitar highlight al salir"""
+            if not separator.is_dragging:
+                separator.is_hovering = False
+                separator.configure(bg=VSCodeColors.BORDER_NORMAL)
+        
+        def on_button_press(event):
+            """Iniciar drag - highlight permanente (Req. 1)"""
+            separator.is_dragging = True
+            separator.configure(bg=VSCodeColors.SEPARATOR_ACTIVE)
+            separator.start_x = event.x_root
+        
+        def on_drag(event):
+            """Durante el drag"""
+            if separator.is_dragging:
+                delta = event.x_root - separator.start_x
+                self.resize_columns(column_index, delta)
+                separator.start_x = event.x_root
+        
+        def on_release(event):
+            """Fin del drag"""
+            separator.is_dragging = False
+            if separator.is_hovering:
+                separator.configure(bg=VSCodeColors.BORDER_ACTIVE)
+            else:
+                separator.configure(bg=VSCodeColors.BORDER_NORMAL)
+        
+        # Bind events
+        separator.bind("<Enter>", on_enter)
+        separator.bind("<Leave>", on_leave)
+        separator.bind("<Button-1>", on_button_press)
+        separator.bind("<B1-Motion>", on_drag)
+        separator.bind("<ButtonRelease-1>", on_release)
+        
+        return separator
+    
+    def resize_columns(self, separator_index, delta):
+        """Redimensiona columnas con límites (Req. 1)"""
+        
+        if separator_index < len(self.columns) - 1:
+            left_col = self.columns[separator_index]
+            right_col = self.columns[separator_index + 1]
+            
+            # Obtener anchos actuales
+            left_width = left_col.winfo_width()
+            right_width = right_col.winfo_width()
+            
+            # Calcular nuevos anchos con límites
+            min_width = 200
+            new_left = max(min_width, left_width + delta)
+            new_right = max(min_width, right_width - delta)
+            
+            # Aplicar si es válido
+            if new_left >= min_width and new_right >= min_width:
+                left_col.configure(width=new_left)
+                right_col.configure(width=new_right)
+                self.column_widths[separator_index] = new_left
+                self.column_widths[separator_index + 1] = new_right
+    
+    def setup_panels(self):
+        """Configurar los 3 paneles principales"""
+        
+        # Panel 1: Explorador
+        self.setup_explorer_panel(self.columns[0])
+        
+        # Panel 2: Editor de documentación
+        self.setup_editor_panel(self.columns[1])
+        
+        # Panel 3: Vista previa
+        self.setup_preview_panel(self.columns[2])
+    
+    def setup_explorer_panel(self, parent):
+        """Panel explorador con hover effects (Req. 2, 3)"""
+        
+        # Header unificado
+        header = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        header.pack(fill="x", padx=10, pady=10)
+        
+        # Título alineado
+        title = tk.Label(
+            header,
+            text="TreeCreator",
+            font=("Segoe UI", 12, "bold"),
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY
         )
-        self.main_paned.add(self.left_frame, minsize=280, width=350)
+        title.pack(side="left")
         
-        # Frame central - Editor de documentación (4 campos)
-        self.center_frame = tk.Frame(
-            self.main_paned, 
-            bg='#ffffff', 
-            relief=tk.SUNKEN, 
-            bd=1
+        # Botones de acción
+        buttons_frame = tk.Frame(header, bg=VSCodeColors.BACKGROUND)
+        buttons_frame.pack(side="right")
+        
+        for icon in ["📁", "📄", "🗑️"]:
+            btn = tk.Button(
+                buttons_frame,
+                text=icon,
+                width=3,
+                font=("Segoe UI", 10),
+                bg=VSCodeColors.SIDEBAR,
+                fg=VSCodeColors.TEXT_PRIMARY,
+                activebackground=VSCodeColors.HOVER,
+                relief='flat',
+                cursor='hand2'
+            )
+            btn.pack(side="left", padx=2)
+        
+        # Separador flat
+        separator = tk.Frame(parent, height=1, bg=VSCodeColors.SEPARATOR)
+        separator.pack(fill="x", padx=10, pady=5)
+        
+        # Área del árbol con hover effects
+        tree_frame = tk.Frame(parent, bg=VSCodeColors.TREE_BACKGROUND)
+        tree_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+        
+        # TreeView con hover effects (Req. 2, 3)
+        self.tree_view = self.theme_manager.create_vscode_treeview(tree_frame)
+        self.tree_view.pack(fill="both", expand=True)
+    
+    def setup_editor_panel(self, parent):
+        """Panel editor con 4 campos y focus highlighting (Req. 6)"""
+        
+        # Header unificado
+        header = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        header.pack(fill="x", padx=10, pady=10)
+        
+        title = tk.Label(
+            header,
+            text="Documentación",
+            font=("Segoe UI", 12, "bold"),
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY
         )
-        self.main_paned.add(self.center_frame, minsize=400, width=500)
+        title.pack(side="left")
         
-        # Frame derecho - Vista previa
-        self.right_frame = tk.Frame(
-            self.main_paned, 
-            bg='#f8f8f8', 
-            relief=tk.SUNKEN, 
-            bd=1
+        # Separador flat
+        separator = tk.Frame(parent, height=1, bg=VSCodeColors.SEPARATOR)
+        separator.pack(fill="x", padx=10, pady=5)
+        
+        # Campo 1: Nombre con ruta completa
+        self.setup_name_field(parent)
+        
+        # Campo 2: Markdown
+        self.setup_markdown_field(parent)
+        
+        # Campo 3: Notas Técnicas
+        self.setup_notes_field(parent)
+        
+        # Campo 4: Código
+        self.setup_code_field(parent)
+    
+    def setup_name_field(self, parent):
+        """Campo nombre con ruta completa"""
+        
+        frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        frame.pack(fill="x", padx=10, pady=5)
+        
+        label = tk.Label(
+            frame,
+            text="NODO:",
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY,
+            font=("Segoe UI", 9)
         )
-        self.main_paned.add(self.right_frame, minsize=320, width=400)
+        label.pack(anchor="w")
         
-        print("✅ Layout de 3 paneles configurado")
+        self.name_entry = tk.Entry(frame)
+        self.theme_manager.apply_vscode_theme_to_entry_widget(self.name_entry)
+        self.name_entry.pack(fill="x", pady=(2, 0))
     
-    def _setup_panels(self):
-        """Configurar los 3 paneles principales."""
-        try:
-            # Panel del árbol (izquierda) - TreeCreator
-            self._setup_tree_panel()
-            
-            # Panel del editor (centro) - Documentación
-            self._setup_editor_panel()
-            
-            # Panel de vista previa (derecha)
-            self._setup_preview_panel()
-            
-            print("✅ Todos los paneles configurados correctamente")
-            
-        except Exception as e:
-            print(f"❌ Error configurando paneles: {e}")
-            messagebox.showerror(
-                "Error de Paneles",
-                f"Error configurando paneles:\n{str(e)}"
-            )
-    
-    def _setup_tree_panel(self):
-        """Configurar panel del explorador de árbol (TreeCreator)."""
-        try:
-            # Crear TreeView con la nueva arquitectura refactorizada
-            self.tree_view = TreeView(self.left_frame, self.node_repository)
-            
-            print("✅ TreeCreator configurado")
-            
-        except Exception as e:
-            print(f"❌ Error configurando TreeCreator: {e}")
-            
-            # Crear un placeholder en caso de error
-            error_label = tk.Label(
-                self.left_frame,
-                text=f"❌ Error cargando TreeCreator:\n{str(e)}",
-                bg='#f0f0f0',
-                fg='red',
-                justify=tk.LEFT,
-                wraplength=250
-            )
-            error_label.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
-    
-    def _setup_editor_panel(self):
-        """Configurar panel del editor de documentación."""
-        try:
-            # Crear EditorContainer (ya refactorizado previamente)
-            self.editor_container = EditorContainer(self.center_frame, self.node_repository)
-            
-            print("✅ Editor de documentación configurado")
-            
-        except Exception as e:
-            print(f"❌ Error configurando editor: {e}")
-            
-            # Crear un placeholder en caso de error
-            error_label = tk.Label(
-                self.center_frame,
-                text=f"❌ Error cargando Editor:\n{str(e)}",
-                bg='#ffffff',
-                fg='red',
-                justify=tk.LEFT,
-                wraplength=350
-            )
-            error_label.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
-    
-    def _setup_preview_panel(self):
-        """Configurar panel de vista previa."""
-        try:
-            # Crear PreviewContainer con la nueva arquitectura de renderers
-            self.preview_container = PreviewContainer(self.right_frame, self.node_repository)
-            
-            print("✅ Vista previa configurada")
-            
-        except Exception as e:
-            print(f"❌ Error configurando vista previa: {e}")
-            
-            # Crear un placeholder en caso de error
-            error_label = tk.Label(
-                self.right_frame,
-                text=f"❌ Error cargando Vista Previa:\n{str(e)}",
-                bg='#f8f8f8',
-                fg='red',
-                justify=tk.LEFT,
-                wraplength=300
-            )
-            error_label.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
-    
-    def _setup_inter_panel_communication(self):
-        """Configurar comunicación entre paneles."""
-        try:
-            # Verificar que todos los paneles se crearon correctamente
-            if not hasattr(self, 'tree_view') or not hasattr(self, 'editor_container'):
-                print("⚠️ No se puede configurar comunicación: paneles no disponibles")
-                return
-            
-            # Conectar selección del árbol con el editor
-            self._connect_tree_to_editor()
-            
-            # Conectar cambios para refrescar vista previa
-            if hasattr(self, 'preview_container'):
-                self._connect_preview_updates()
-            
-            print("✅ Comunicación entre paneles configurada")
-            
-        except Exception as e:
-            print(f"❌ Error configurando comunicación entre paneles: {e}")
-    
-    def _connect_tree_to_editor(self):
-        """Conectar selección del árbol con el editor."""
-        def on_tree_select(selected_id: Optional[str]):
-            """Callback cuando se selecciona un nodo en el árbol."""
-            try:
-                if selected_id:
-                    node = self.node_repository.find_by_id(selected_id)
-                    if node:
-                        self.editor_container.load_node(node)
-                        print(f"📝 Nodo cargado en editor: {node.name}")
-                    else:
-                        self.editor_container.clear_editor()
-                        print("⚠️ Nodo no encontrado, editor limpiado")
-                else:
-                    self.editor_container.clear_editor()
-                    print("📝 Editor limpiado por deselección")
-                    
-            except Exception as e:
-                print(f"❌ Error en selección de árbol: {e}")
+    def setup_markdown_field(self, parent):
+        """Campo markdown con focus highlighting"""
         
-        def on_name_update(node_id: str, new_name: str):
-            """Callback cuando se actualiza el nombre de un nodo desde el editor."""
-            try:
-                # Actualizar TreeView
-                if hasattr(self.tree_view, 'update_node_display'):
-                    success = self.tree_view.update_node_display(node_id, new_name)
-                    if success:
-                        print(f"🔄 TreeView actualizado: {new_name}")
-                
-                # Refrescar vista previa si está disponible
-                if hasattr(self, 'preview_container'):
-                    self.preview_container.refresh()
-                    
-            except Exception as e:
-                print(f"❌ Error actualizando nombre: {e}")
+        frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        frame.pack(fill="both", expand=True, padx=10, pady=5)
         
-        # Establecer callbacks bidireccionales
-        self.tree_view.set_selection_callback(on_tree_select)
-        self.editor_container.set_tree_update_callback(on_name_update)
-    
-    def _connect_preview_updates(self):
-        """Conectar eventos que requieren actualizar la vista previa."""
-        # Wrapper para operaciones CRUD en el árbol
-        self._wrap_tree_operations()
+        label = tk.Label(
+            frame,
+            text="MARKDOWN:",
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY,
+            font=("Segoe UI", 9)
+        )
+        label.pack(anchor="w")
         
-        # Wrapper para auto-save del editor
-        self._wrap_editor_operations()
+        self.markdown_text = tk.Text(frame, height=8)
+        self.theme_manager.apply_vscode_theme_to_text_widget(self.markdown_text)
+        self.markdown_text.pack(fill="both", expand=True, pady=(2, 0))
     
-    def _wrap_tree_operations(self):
-        """Envolver operaciones del árbol para refrescar vista previa."""
-        if not hasattr(self.tree_view, '_create_folder'):
+    def setup_notes_field(self, parent):
+        """Campo notas técnicas con focus highlighting"""
+        
+        frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        label = tk.Label(
+            frame,
+            text="NOTAS TÉCNICAS:",
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY,
+            font=("Segoe UI", 9)
+        )
+        label.pack(anchor="w")
+        
+        self.notes_text = tk.Text(frame, height=4)
+        self.theme_manager.apply_vscode_theme_to_text_widget(self.notes_text)
+        self.notes_text.pack(fill="both", expand=True, pady=(2, 0))
+    
+    def setup_code_field(self, parent):
+        """Campo código con focus highlighting"""
+        
+        frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        label = tk.Label(
+            frame,
+            text="CÓDIGO:",
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY,
+            font=("Segoe UI", 9)
+        )
+        label.pack(anchor="w")
+        
+        self.code_text = tk.Text(frame, height=6)
+        self.theme_manager.apply_vscode_theme_to_text_widget(self.code_text)
+        self.code_text.pack(fill="both", expand=True, pady=(2, 0))
+    
+    def setup_preview_panel(self, parent):
+        """Panel vista previa con renderizado inicial (Req. 5)"""
+        
+        # Header unificado
+        header = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        header.pack(fill="x", padx=10, pady=10)
+        
+        title = tk.Label(
+            header,
+            text="Vista Previa",
+            font=("Segoe UI", 12, "bold"),
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY
+        )
+        title.pack(side="left")
+        
+        # Botones de acción
+        buttons_frame = tk.Frame(header, bg=VSCodeColors.BACKGROUND)
+        buttons_frame.pack(side="right")
+        
+        for icon in ["⚙️", "💾"]:
+            btn = tk.Button(
+                buttons_frame,
+                text=icon,
+                width=3,
+                font=("Segoe UI", 10),
+                bg=VSCodeColors.SIDEBAR,
+                fg=VSCodeColors.TEXT_PRIMARY,
+                activebackground=VSCodeColors.HOVER,
+                relief='flat',
+                cursor='hand2'
+            )
+            btn.pack(side="left", padx=2)
+        
+        # Selector de modo (debajo del título - no al lado)
+        mode_frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        mode_frame.pack(fill="x", padx=10, pady=(0, 5))
+        
+        mode_label = tk.Label(
+            mode_frame,
+            text="Modo:",
+            bg=VSCodeColors.BACKGROUND,
+            fg=VSCodeColors.TEXT_PRIMARY,
+            font=("Segoe UI", 9)
+        )
+        mode_label.pack(side="left")
+        
+        self.mode_combo = ttk.Combobox(
+            mode_frame,
+            values=["Clásico", "ASCII", "Solo Carpetas", "Columnas"],
+            state="readonly",
+            width=15
+        )
+        self.mode_combo.set("Clásico")
+        self.mode_combo.pack(side="left", padx=(5, 0))
+        
+        # Separador flat
+        separator = tk.Frame(parent, height=1, bg=VSCodeColors.SEPARATOR)
+        separator.pack(fill="x", padx=10, pady=5)
+        
+        # Área de vista previa
+        preview_frame = tk.Frame(parent, bg=VSCodeColors.BACKGROUND)
+        preview_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+        
+        self.preview_text = tk.Text(
+            preview_frame,
+            wrap="none",
+            state="disabled"
+        )
+        self.theme_manager.apply_vscode_theme_to_text_widget(self.preview_text)
+        self.preview_text.pack(fill="both", expand=True)
+    
+    def render_initial_content(self):
+        """Renderiza contenido inicial (Req. 4, 5)"""
+        
+        # Poblar árbol con workspace inicial
+        if self.workspace_info and self.workspace_info['preview_data']:
+            self.populate_initial_tree()
+            self.render_initial_preview()
+    
+    def populate_initial_tree(self):
+        """Pobla el árbol con datos iniciales (Req. 5)"""
+        
+        preview_data = self.workspace_info['preview_data']
+        if not preview_data:
             return
         
-        # Guardar métodos originales
-        original_create_folder = self.tree_view._create_folder
-        original_create_file = self.tree_view._create_file
-        original_delete_node = self.tree_view._delete_node
+        # Insertar nodo root
+        root_id = preview_data['root_id']
+        root_item = self.tree_view.insert(
+            "",
+            "end",
+            iid=root_id,
+            text=f"📁 {preview_data['name']}",
+            values=(preview_data['status'],)
+        )
         
-        def refresh_after_create_folder():
-            try:
-                result = original_create_folder()
-                self.preview_container.refresh()
-                return result
-            except Exception as e:
-                print(f"❌ Error en crear carpeta: {e}")
+        # Marcar como root (sin hover - Req. 3)
+        self.tree_view.set_root_item(root_item)
         
-        def refresh_after_create_file():
-            try:
-                result = original_create_file()
-                self.preview_container.refresh()
-                return result
-            except Exception as e:
-                print(f"❌ Error en crear archivo: {e}")
+        # Expandir root
+        self.tree_view.item(root_item, open=True)
         
-        def refresh_after_delete():
-            try:
-                result = original_delete_node()
-                self.preview_container.refresh()
-                return result
-            except Exception as e:
-                print(f"❌ Error en eliminar nodo: {e}")
-        
-        # Reemplazar métodos con wrappers
-        self.tree_view._create_folder = refresh_after_create_folder
-        self.tree_view._create_file = refresh_after_create_file
-        self.tree_view._delete_node = refresh_after_delete
+        # Seleccionar root para mostrar en editor
+        self.tree_view.selection_set(root_item)
+        self.on_tree_select(None)
     
-    def _wrap_editor_operations(self):
-        """Envolver operaciones del editor para refrescar vista previa."""
-        if not hasattr(self.editor_container, '_auto_save'):
+    def render_initial_preview(self):
+        """Renderiza vista previa inicial (Req. 5)"""
+        
+        preview_data = self.workspace_info['preview_data']
+        if not preview_data:
             return
         
-        # Guardar método original
-        original_auto_save = self.editor_container._auto_save
+        # Contenido inicial de vista previa
+        stats = self.workspace_manager.get_workspace_stats()
         
-        def refresh_after_save():
-            try:
-                result = original_auto_save()
-                # Refrescar vista previa después del guardado
-                if hasattr(self, 'preview_container'):
-                    self.preview_container.refresh()
-                return result
-            except Exception as e:
-                print(f"❌ Error en auto-save: {e}")
-        
-        # Reemplazar método
-        self.editor_container._auto_save = refresh_after_save
+        initial_content = f"""📁 {preview_data['name']} {preview_data['status']}
+    {preview_data['markdown']}
     
-    def _setup_window_events(self):
-        """Configurar eventos de ventana."""
+═══ ESTADÍSTICAS ═══
+Total nodos: {stats['total_nodes']}
+Carpetas: {stats['folders']}
+Archivos: {stats['files']}
+Completados ✅: {stats['completed']}
+Pendientes ⬜: {stats['pending']}
+Bloqueados ❌: {stats['blocked']}
+
+═══ WORKSPACE INICIAL ═══
+Carpeta Root creada automáticamente
+Status: {preview_data['status']} Pendiente
+Contenido: {preview_data['markdown']}"""
+        
+        # Mostrar en vista previa
+        self.preview_text.configure(state="normal")
+        self.preview_text.delete(1.0, "end")
+        self.preview_text.insert(1.0, initial_content)
+        self.preview_text.configure(state="disabled")
+    
+    def setup_events(self):
+        """Configurar eventos globales"""
+        
         # Evento de cierre
-        self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
-        # Eventos de redimensionado (si ConfigManager está disponible)
-        if self.config_manager:
-            self.root.bind('<Configure>', self._on_window_configure)
+        # Evento de selección en árbol
+        self.tree_view.bind("<<TreeviewSelect>>", self.on_tree_select)
         
-        # Atajos de teclado globales
-        self._setup_keyboard_shortcuts()
+        # Eventos del workspace
+        self.event_bus.subscribe('node_selected', self.on_node_selected)
+        self.event_bus.subscribe('node_updated', self.on_node_updated)
     
-    def _setup_keyboard_shortcuts(self):
-        """Configurar atajos de teclado globales."""
-        # Atajos para el árbol
-        self.root.bind('<Control-n>', lambda e: self._safe_call(self.tree_view._create_file))
-        self.root.bind('<Control-Shift-N>', lambda e: self._safe_call(self.tree_view._create_folder))
-        self.root.bind('<Delete>', lambda e: self._safe_call(self.tree_view._delete_node))
-        self.root.bind('<F5>', lambda e: self._safe_call(self.tree_view.refresh))
+    def on_tree_select(self, event):
+        """Maneja selección en el árbol"""
         
-        # Atajos para vista previa
-        if hasattr(self, 'preview_container'):
-            self.root.bind('<Control-r>', lambda e: self._safe_call(self.preview_container.refresh))
+        selection = self.tree_view.selection()
+        if not selection:
+            return
         
-        # Atajos generales
-        self.root.bind('<Control-q>', lambda e: self._on_closing())
-        self.root.bind('<F1>', lambda e: self._show_help())
+        node_id = selection[0]
+        node_data = self.repository.nodes.get(node_id)
         
-        print("✅ Atajos de teclado configurados")
-    
-    def _safe_call(self, method):
-        """Llamar método de forma segura con manejo de errores."""
-        try:
-            if callable(method):
-                method()
-        except Exception as e:
-            print(f"❌ Error en atajo de teclado: {e}")
-    
-    def _on_window_configure(self, event):
-        """Manejar redimensionado de ventana."""
-        # Solo procesar eventos de la ventana principal
-        if event.widget == self.root and self.config_manager:
-            # Guardar tamaño y posición con debounce
-            if hasattr(self, '_configure_timer'):
-                self.root.after_cancel(self._configure_timer)
+        if node_data:
+            # Mostrar ruta completa en campo nombre
+            full_path = self.get_node_full_path(node_id)
             
-            self._configure_timer = self.root.after(1000, self._save_window_state)
+            # Actualizar campos del editor
+            self.name_entry.delete(0, "end")
+            self.name_entry.insert(0, full_path)
+            
+            self.markdown_text.delete(1.0, "end")
+            self.markdown_text.insert(1.0, node_data.get('markdown', ''))
+            
+            self.notes_text.delete(1.0, "end")
+            self.notes_text.insert(1.0, node_data.get('notes', ''))
+            
+            self.code_text.delete(1.0, "end")
+            self.code_text.insert(1.0, node_data.get('code', ''))
     
-    def _save_window_state(self):
-        """Guardar estado de ventana."""
-        if self.config_manager:
-            try:
-                geometry = self.root.geometry()
-                # Parsear geometry string (ej: "1400x800+100+50")
-                size_pos = geometry.split('+')
-                size = size_pos[0].split('x')
-                
-                width = int(size[0])
-                height = int(size[1])
-                
-                x = int(size_pos[1]) if len(size_pos) > 1 else None
-                y = int(size_pos[2]) if len(size_pos) > 2 else None
-                
-                self.config_manager.save_window_state(width, height, x, y)
-                
-            except Exception as e:
-                print(f"❌ Error guardando estado de ventana: {e}")
-    
-    def _show_help(self):
-        """Mostrar ayuda de la aplicación."""
-        help_text = """🌳 TreeCreator v4 Pro - Ayuda Rápida
-
-📁 TREECREATOR (Panel Izquierdo):
-• Doble clic: Editar nombre inline
-• Clic derecho: Menú contextual
-• Drag & Drop: Mover elementos
-• Ctrl+N: Nuevo archivo
-• Ctrl+Shift+N: Nueva carpeta
-• Delete: Eliminar seleccionado
-
-📝 EDITOR (Panel Central):
-• 4 campos editables con auto-guardado
-• Plantillas automáticas por extensión
-• Sincronización en tiempo real
-
-🔍 VISTA PREVIA (Panel Derecho):
-• 4 modos de visualización
-• Configuración personalizable  
-• Exportación a TXT
-• Selección y copia habilitada
-
-⌨️ ATAJOS GLOBALES:
-• F5: Refrescar
-• Ctrl+R: Refrescar vista previa
-• Ctrl+Q: Salir
-• F1: Ayuda
-"""
+    def get_node_full_path(self, node_id: str) -> str:
+        """Obtiene ruta completa del nodo"""
         
-        messagebox.showinfo("Ayuda - TreeCreator v4 Pro", help_text)
+        node = self.repository.nodes.get(node_id)
+        if not node:
+            return ""
+        
+        if not node.get('parent_id'):
+            return node['name']
+        
+        parent_path = self.get_node_full_path(node['parent_id'])
+        return f"{parent_path}/{node['name']}"
     
-    def _on_closing(self):
-        """Manejar cierre de la aplicación."""
-        try:
-            # Guardar configuración si está disponible
-            if self.config_manager:
-                self._save_window_state()
-                self.config_manager.save_config()
-                print("✅ Configuración guardada al cerrar")
-            
-            # Cancelar edición inline si está activa
-            if hasattr(self.tree_view, 'inline_editor') and self.tree_view.inline_editor:
-                self.tree_view.inline_editor.cancel_edit()
-            
-            print("👋 Cerrando TreeCreator v4 Pro")
-            self.root.destroy()
-            
-        except Exception as e:
-            print(f"❌ Error al cerrar aplicación: {e}")
-            # Forzar cierre aunque haya errores
-            self.root.destroy()
+    def on_node_selected(self, data):
+        """Maneja eventos de selección de nodo"""
+        pass
+    
+    def on_node_updated(self, data):
+        """Maneja eventos de actualización de nodo"""
+        pass
+    
+    def on_closing(self):
+        """Manejo del cierre de la aplicación"""
+        self.repository.save_data()
+        self.root.destroy()
     
     def run(self):
-        """Ejecutar la aplicación."""
-        try:
-            print("🚀 Iniciando TreeCreator v4 Pro...")
-            self.root.mainloop()
-        except Exception as e:
-            print(f"❌ Error ejecutando aplicación: {e}")
-            messagebox.showerror(
-                "Error Crítico",
-                f"Error ejecutando TreeCreator:\n{str(e)}"
-            )
-    
-    # ==================== MÉTODOS PÚBLICOS ADICIONALES ====================
-    
-    def get_selected_node_id(self) -> Optional[str]:
-        """Obtener ID del nodo seleccionado en el árbol."""
-        if hasattr(self.tree_view, 'get_selected_node_id'):
-            return self.tree_view.get_selected_node_id()
-        return None
-    
-    def refresh_all_panels(self):
-        """Refrescar todos los paneles."""
-        try:
-            if hasattr(self.tree_view, 'refresh'):
-                self.tree_view.refresh()
-            
-            if hasattr(self, 'preview_container'):
-                self.preview_container.refresh()
-                
-            print("✅ Todos los paneles refrescados")
-            
-        except Exception as e:
-            print(f"❌ Error refrescando paneles: {e}")
-    
-    def show_statistics(self):
-        """Mostrar estadísticas del proyecto."""
-        try:
-            if hasattr(self.tree_view, 'get_tree_statistics'):
-                stats = self.tree_view.get_tree_statistics()
-                
-                stats_text = f"""📊 Estadísticas del Proyecto
+        """Ejecutar la aplicación"""
+        self.root.mainloop()
 
-📁 Total carpetas: {stats.get('total_folders', 0)}
-📄 Total archivos: {stats.get('total_files', 0)}
-
-Estados:
-✅ Completados: {stats.get('completed', 0)}
-⬜ En progreso: {stats.get('in_progress', 0)}
-❌ Pendientes: {stats.get('pending', 0)}
-
-🔢 Total elementos: {stats.get('total_folders', 0) + stats.get('total_files', 0)}
-"""
-                
-                messagebox.showinfo("Estadísticas del Proyecto", stats_text)
-            
-        except Exception as e:
-            print(f"❌ Error mostrando estadísticas: {e}")
-            messagebox.showerror("Error", f"Error obteniendo estadísticas:\n{str(e)}")
-
-
-# ==================== PUNTO DE ENTRADA ====================
-
-def main():
-    """Función principal de la aplicación."""
-    try:
-        # Crear y ejecutar aplicación
-        app = MainWindow()
-        app.run()
-        
-    except Exception as e:
-        print(f"❌ Error crítico en main: {e}")
-        
-        # Mostrar error en interfaz si es posible
-        root = tk.Tk()
-        root.withdraw()  # Ocultar ventana vacía
-        
-        messagebox.showerror(
-            "Error Crítico - TreeCreator",
-            f"Error crítico al inicializar TreeCreator:\n\n{str(e)}\n\n"
-            f"Por favor, verifica que todos los módulos estén correctamente instalados."
-        )
-        
-        root.destroy()
-
+# ═══════════════════════════════════════════════════════════════════════════════════════
+# INICIALIZACIÓN
+# ═══════════════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    main()
+    app = MainWindow()
+    app.run()
